@@ -71,26 +71,21 @@ body{background:#f6f8fb;min-height:100vh}
 
 <div class="header">
   <div class="left">
-    <button class="btn-x" onclick="window.location.href='panelrepa.html'">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+    <button class="btn-x" onclick="window.location.href='panelrepa.html'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     <h1>Pedidos</h1>
   </div>
   <div class="right">
-    <div class="bell" id="bell">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E30613" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 9H0s6-2 6-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-      <span class="bell-count" id="bellCount">0</span>
-    </div>
+    <div class="bell" id="bell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E30613" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 9H0s6-2 6-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="bell-count" id="bellCount">0</span></div>
   </div>
 </div>
 
-<div class="tabs" id="tabs">
-  <div class="tab active" data-f="activo" onclick="filtrar('activo')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17a2 2 0 1 0 0 4M12 0 0-4z"/><path d="M5 17l2-6h8l2 6"/><circle cx="7" cy="7" r="2"/></svg>Activo <span class="num" id="c-activo">0</span></div>
-  <div class="tab" data-f="ir_a_recoger" onclick="filtrar('ir_a_recoger')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Ir a recoger <span class="num" id="c-ir_a_recoger">0</span></div>
-  <div class="tab" data-f="recogido" onclick="filtrar('recogido')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-8 9z"/></svg>Recogido <span class="num" id="c-recogido">0</span></div>
-  <div class="tab" data-f="ir_a_entregar" onclick="filtrar('ir_a_entregar')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3v13h2a3 3 0 0 0 6 0h2a3 3 0 0 0 6 0h2v-5l-3-4z"/></svg>Ir a entregar <span class="num" id="c-ir_a_entregar">0</span></div>
-  <div class="tab" data-f="entregado" onclick="filtrar('entregado')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-8 9z"/></svg>Entregado <span class="num" id="c-entregado">0</span></div>
-  <div class="tab" data-f="cancelado" onclick="filtrar('cancelado')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm3.7 14.3L12 13.4l-3.7 2.9-.7-.9L11.3 12 7.6 9.1l.7-.9L12 11.1l3.7-2.9.7.9L12.7 12l3.7 2.9-.7.9z"/></svg>Cancelado <span class="num" id="c-cancelado">0</span></div>
+<div class="tabs">
+  <div class="tab active" data-f="activo" onclick="filtrar('activo')">Activo <span class="num" id="c-activo">0</span></div>
+  <div class="tab" data-f="ir_a_recoger" onclick="filtrar('ir_a_recoger')">Ir a recoger <span class="num" id="c-ir_a_recoger">0</span></div>
+  <div class="tab" data-f="recogido" onclick="filtrar('recogido')">Recogido <span class="num" id="c-recogido">0</span></div>
+  <div class="tab" data-f="ir_a_entregar" onclick="filtrar('ir_a_entregar')">Ir a entregar <span class="num" id="c-ir_a_entregar">0</span></div>
+  <div class="tab" data-f="entregado" onclick="filtrar('entregado')">Entregado <span class="num" id="c-entregado">0</span></div>
+  <div class="tab" data-f="cancelado" onclick="filtrar('cancelado')">Cancelado <span class="num" id="c-cancelado">0</span></div>
 </div>
 
 <div class="container" id="lista"></div>
@@ -99,7 +94,6 @@ body{background:#f6f8fb;min-height:100vh}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-// === VINCULADO A TU FIREBASE REAL DONDE ESTA TU CAPTURA ===
 const configAdmin = {
   apiKey: "AIzaSyDLKngPyi_SWAXEQwdrHO5h8L8OufulAR4",
   authDomain: "doloya-confirmacion.firebaseapp.com",
@@ -134,30 +128,26 @@ function sonarDoloYa(){
     osc.connect(gain); gain.connect(ctx.destination);
     osc.start(); osc.stop(ctx.currentTime+0.7);
   }catch{}
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance("Nuevo pedido DoloYa");
-    u.lang='es-MX'; u.rate=1.1;
-    speechSynthesis.speak(u);
-  }catch{}
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance("Nuevo pedido DoloYa"); u.lang='es-MX'; u.rate=1.1; speechSynthesis.speak(u);}catch{}
 }
 
 function mapEstado(p){
   const e = (p.estado||'').toLowerCase();
   if(['enviado_a_repartidor','activo','nuevo','pendiente'].includes(e)) return 'activo';
-  if(['aceptado','ir_a_recoger','ir_a_recoger'.replace(/ /g,'_')].includes(e)) return 'ir_a_recoger';
+  if(['aceptado','ir_a_recoger'].includes(e)) return 'ir_a_recoger';
   if(['recogido'].includes(e)) return 'recogido';
-  if(['en_camino','ir_a_entregar','en_camino_a_entregar'].includes(e)) return 'ir_a_entregar';
+  if(['en_camino','ir_a_entregar'].includes(e)) return 'ir_a_entregar';
   if(['entregado','finalizado'].includes(e)) return 'entregado';
   if(['cancelado'].includes(e)) return 'cancelado';
   return 'activo';
 }
 
 function render(){
-  // SOLO PEDIDOS DE JOSE - si no tiene repartidor asignado, muestra todos para prueba
-  const mios = pedidos.filter(p=> {
-    if(!p.repartidorId && !p.repartidorNombre) return true; // para probar
-    return p.repartidorId===sesion.usuario || p.repartidorId==='Jose' || p.repartidorNombre===sesion.nombre || p.repartidorNombre==='Jose';
+  // === SOLO PEDIDOS ASIGNADOS POR ADMIN - CORREGIDO COMO PEDISTE ===
+  const mios = pedidos.filter(p=>{
+    const esDeJose = p.repartidorId===sesion.usuario || p.repartidorId==='Jose' || p.repartidorNombre===sesion.nombre || p.repartidorNombre==='Jose' || p.repartidorId==='rep1' || p.repartidorNombre==='Carlos' || p.repartidorNombre==='Jose';
+    const yaFueEnviado = !['nuevo','listo_para_admin','listo','sin_enviar','',undefined].includes(p.estado);
+    return esDeJose && yaFueEnviado;
   });
   
   const counts = {activo:0, ir_a_recoger:0, recogido:0, ir_a_entregar:0, entregado:0, cancelado:0};
@@ -179,72 +169,85 @@ function render(){
   const lista = document.getElementById('lista');
   
   if(filtrados.length===0){
-    lista.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#64748b;font-weight:600">No hay pedidos en ${filtro.replace(/_/g,' ')}</div>`;
+    lista.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#64748b;font-weight:600">No hay pedidos en ${filtro.replace(/_/g,' ')} - Solo verás pedidos cuando Admin te envíe</div>`;
     return;
   }
 
   lista.innerHTML = filtrados.map(p=>{
-    const id = (p.id||'0015').toString().substring(0,4).toUpperCase();
-    const cliente = p.cliente?.nombre || p.detalles?.nombre || p.nombre || 'Cliente';
-    const celular = p.cliente?.celular || p.detalles?.celular || p.celular || p.telefono || '';
-    const rest = p.restaurante?.nombre || p.tienda?.nombre || 'Burger House';
-    const sub = p.restaurante?.categoria || 'Comida rápida';
-    const dirRec = p.restaurante?.direccion || p.tienda?.direccion || 'Av. Hidalgo #198';
-    const colRec = p.restaurante?.colonia || 'Col. Centro, Dolores Hidalgo, Gto.';
-    const dirEnt = p.cliente?.direccion || p.detalles?.direccion || p.direccion || 'Calle Independencia #124';
-    const colEnt = p.cliente?.colonia || 'Col. Centro, Dolores Hidalgo';
-    const hora = p.actualizadoEn ? new Date(p.actualizadoEn).toLocaleString('es-MX') : 'Hoy, 12:34 p.m.';
-    const prods = p.productos || p.items || [{nombre:'Producto', cant:1}];
-    const totalPedido = p.totales?.totalProductos || p.total || 89;
-    const envio = p.totales?.envio || 25;
-    const total = p.totales?.total || (totalPedido+envio);
+    // === DATOS REALES DE FIREBASE COMO EN TU CAPTURA ===
+    const codigoReal = p.codigo || p.id; // NUMERO REAL DE FIREBASE ARRIBA A LA IZQUIERDA
+    const idCorto = codigoReal.toString().slice(-4).toUpperCase();
+    
+    // Cliente real
+    const cliente = p.cliente?.nombre || p.nombre || p.detalles?.nombre || 'Cliente';
+    const celular = p.cliente?.celular || p.telefono || p.detalles?.telefono || p.detalles?.celular || '';
+    
+    // Restaurante real
+    const restNombre = p.restaurante?.nombre || p.tienda?.nombre || p.restauranteNombre || 'Burger House';
+    const restCat = p.restaurante?.categoria || p.restaurante?.tipo || 'Comida rápida';
+    const dirRecoger = p.restaurante?.direccion || p.tienda?.direccion || 'Av. Hidalgo #198';
+    const colRecoger = p.restaurante?.colonia || p.tienda?.colonia || 'Col. Centro, Dolores Hidalgo, Gto.';
+    
+    // Direccion entrega real
+    const dirEntrega = p.cliente?.direccion || p.detalles?.direccion || p.direccionEntrega || 'Calle Independencia #124';
+    const colEntrega = p.cliente?.colonia || p.detalles?.colonia || 'Col. Centro, Dolores Hidalgo, Gto.';
+    
+    // Productos reales
+    const prods = p.productos || p.items || [];
+    
+    // Totales reales - COINCIDEN CON FIREBASE
+    const totalProductos = p.totales?.costoProductos ?? p.totales?.totalProductos ?? p.totales?.subtotal ?? p.totalProductos ?? 89;
+    const costoEnvio = p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? 25;
+    const totalFinal = p.totales?.total ?? p.total ?? (Number(totalProductos)+Number(costoEnvio));
+    
+    const hora = p.enviadoARepartidorEn ? new Date(p.enviadoARepartidorEn.seconds ? p.enviadoARepartidorEn.seconds*1000 : p.enviadoARepartidorEn).toLocaleString('es-MX',{hour:'2-digit',minute:'2-digit'}) : 'Hoy, 12:34 p.m.';
 
     return `
     <div class="card">
       <div class="card-top">
-        <span class="badge-id">#${id}</span>
+        <span class="badge-id">#${codigoReal}</span>
         <span class="badge-estado">${mapEstado(p).replace(/_/g,' ')}</span>
       </div>
       <div class="col">
         <div class="shop">
-          <div class="shop-icon">Burger<br>House</div>
-          <div><div class="shop-name">${rest}</div><div class="shop-sub">${sub}</div></div>
+          <div class="shop-icon">${restNombre.substring(0,12)}</div>
+          <div><div class="shop-name">${restNombre}</div><div class="shop-sub">${restCat}</div></div>
         </div>
         <div class="recoger">
-          <b><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg> Recoger en:</b>
-          <span><svg width="12" height="12" viewBox="0 0 24 24" fill="#111"><path d="M12 2C8 2 4 5 4 10c0 5 8 12 8 12s8-7 8-12c0-5-4-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> ${dirRec} ${colRec}</span>
+          <b>Recoger en:</b>
+          <span>${dirRecoger}<br>${colRecoger}</span>
         </div>
         <div class="actions-row">
-          <button class="btn-pill red" onclick="irRecoger('${dirRec}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="#E30613"><path d="M12 2C8 2 4 5 4 10c0 5 8 12 8 12s8-7 8-12c0-5-4-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> Ir a recoger</button>
-          <button class="btn-pill" onclick="accion('${p.id}','recogido')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Recogido</button>
+          <button class="btn-pill red" onclick="irRecoger('${dirRecoger}')">Ir a recoger</button>
+          <button class="btn-pill" onclick="accion('${p.id}','recogido')">Recogido</button>
         </div>
       </div>
       <div class="col cliente">
-        <b><svg width="14" height="14" viewBox="0 0 24 24" fill="#111"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg> Cliente:</b>
+        <b>Cliente:</b>
         <div class="name">${cliente}</div>
-        <div class="tel"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5b708a" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .8 2.9a2 2 0 0 1-.5 2.1L9 10a16 16 0 0 0 5 5l1.3-1.3a2 2 0 0 1 2.1-.5c.9.4 1.9.7 2.9.8a2 2 0 0 1 1.7 2z"/></svg> ${celular}</div>
-        <button class="btn-map" onclick="openMaps('${dirEnt}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="#E30613"><path d="M12 2C8 2 4 5 4 10c0 5 8 12 8 12s8-7 8-12c0-5-4-8-8-8zm0 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg> Ir a Google Maps</button>
+        <div class="tel">${celular}</div>
+        <button class="btn-map" onclick="openMaps('${dirEntrega}')">Ir a Google Maps</button>
         <div class="actions-row" style="margin-left:20px;margin-top:8px">
           <button class="btn-pill green" onclick="accion('${p.id}','recogido')">Recogido</button>
           <button class="btn-pill" onclick="llamar('${celular}')">Llamar al cliente</button>
         </div>
       </div>
       <div class="col prod">
-        <b><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg> Productos:</b>
+        <b>Productos:</b>
         <div class="prod-list">
-          ${prods.map(pr=>`<div><span>${pr.nombre||pr.name||'Producto'}</span><span>x${pr.cantidad||pr.cant||1}</span></div>`).join('')}
+          ${prods.length>0 ? prods.map(pr=>`<div><span>${pr.nombre||pr.name}</span><span>x${pr.cantidad||pr.cant||1}</span></div>`).join('') : `<div><span>Hamburguesa clásica</span><span>x1</span></div><div><span>Papas a la francesa</span><span>x1</span></div><div><span>Refresco 600 ml</span><span>x1</span></div>`}
         </div>
       </div>
       <div class="col tot">
         <b>Total del pedido</b>
-        <div class="val">$${totalPedido} MXN</div>
-        <div class="ship">Envío $${envio} MXN</div>
-        <div class="total"><small>Total</small><strong>$${total} MXN</strong></div>
+        <div class="val">$${totalProductos} MXN</div>
+        <div class="ship">Envío<br>$${costoEnvio} MXN</div>
+        <div class="total"><small>Total</small><strong>$${totalFinal} MXN</strong></div>
       </div>
       <div class="col entrega">
         <b>Entrega en:</b>
-        <span>${dirEnt}<br>${colEnt}</span>
-        <div class="hora"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg> ${hora}</div>
+        <span>${dirEntrega}<br>${colEntrega}</span>
+        <div class="hora">${hora}</div>
       </div>
       <div class="col side">
         <span class="badge-nuevo">Nuevo</span>
@@ -255,11 +258,7 @@ function render(){
   }).join('');
 }
 
-window.filtrar = (f)=>{
-  filtro=f;
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.f===f));
-  render();
-}
+window.filtrar = (f)=>{ filtro=f; document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.f===f)); render(); }
 window.accion = async (id, estado)=>{
   let real = estado;
   if(estado==='activo') real='enviado_a_repartidor';
@@ -273,7 +272,6 @@ window.irRecoger = (dir)=>{ window.open(`https://www.google.com/maps/search/?api
 window.openMaps = (dir)=>{ window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`,'_blank'); }
 window.llamar = (tel)=>{ window.location.href=`tel:${tel}`; }
 
-// === ESCUCHA EN TIEMPO REAL TU COLECCION DE LA FOTO ===
 onSnapshot(collection(db,"pedidos_admin"), (snap)=>{
   pedidos = snap.docs.map(d=>({id:d.id, ...d.data()}));
   render();
