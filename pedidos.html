@@ -38,6 +38,7 @@ body{background:#f6f8fb;min-height:100vh}
 .btn-mini-map{border:1px solid #e2e8f0;border-radius:999px;padding:4px 10px;font-size:9px;font-weight:600;display:flex;align-items:center;gap:4px;cursor:pointer;background:white;color:#334155}
 .btn-mini-map.recogida{color:#E30613;border-color:#fecdd3;background:#fff1f2}
 .btn-mini-map.entrega{background:#0f172a;color:white;border-color:#0f172a}
+.btn-mini-map.llamar{background:#16a34a;color:white;border-color:#16a34a}
 .col{display:flex;flex-direction:column;gap:4px}
 .shop{display:flex;gap:10px}
 .shop-icon{width:52px;height:52px;background:#f1f5f9;border:2px solid #e5e7eb;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
@@ -88,7 +89,7 @@ body{background:#f6f8fb;min-height:100vh}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const configAdmin = {
   apiKey: "AIzaSyDLKngPyi_SWAXEQwdrHO5h8L8OufulAR4",
@@ -182,7 +183,7 @@ function render(){
   lista.innerHTML = filtrados.map(p=>{
     const codigoReal = p.codigo || p.id;
     const cliente = p.cliente?.nombre || p.nombre || p.detalles?.nombre || 'Cliente';
-    const celular = p.cliente?.celular || p.telefono || '';
+    const celular = p.cliente?.celular || p.telefono || p.detalles?.telefono || '';
     const restNombre = p.restaurante?.nombre || p.tienda?.nombre || 'Burger House';
     const restCat = p.restaurante?.categoria || 'Comida rápida';
     const restLogo = p.restaurante?.logo || p.tienda?.logo || p.restaurante?.imagen || '';
@@ -191,11 +192,16 @@ function render(){
     const dirEntrega = p.cliente?.direccion || p.direccionEntrega || 'Calle Independencia #124';
     const colEntrega = p.cliente?.colonia || 'Col. Centro';
     const prods = p.productos || [];
-    const totalProductos = p.totales?.costoProductos ?? 89;
-    const costoEnvio = p.totales?.costoEnvio ?? 25;
-    const totalFinal = p.totales?.total ?? (Number(totalProductos)+Number(costoEnvio));
     
-    let tsSec=0; let horaStr='12:34 p.m.';
+    // === TARIFA DE SERVICIO - CORREGIDO COMO PEDISTE ===
+    // No se muestra separada, se suma internamente al total del pedido
+    const costoProdBase = Number(p.totales?.costoProductos ?? p.totales?.totalProductos ?? p.totales?.subtotal ?? 480);
+    const tarifaServicio = Number(p.totales?.tarifaServicio ?? p.totales?.tarifa ?? p.totales?.servicio ?? p.totales?.comision ?? 0);
+    const totalPedidoConTarifa = costoProdBase + tarifaServicio; // Este es el que ve el repartidor en "Total del pedido"
+    const costoEnvio = Number(p.totales?.costoEnvio ?? p.totales?.envio ?? 26.2);
+    const totalFinal = totalPedidoConTarifa + costoEnvio;
+    
+    let tsSec=0; let horaStr='02:07 p.m.';
     if(p.enviadoARepartidorEn?.seconds) tsSec=p.enviadoARepartidorEn.seconds;
     else if(p.timestamp?.seconds) tsSec=p.timestamp.seconds;
     else if(p.timestampAdmin?.seconds) tsSec=p.timestampAdmin.seconds;
@@ -211,6 +217,7 @@ function render(){
           <div class="map-btns">
             <button class="btn-mini-map recogida" onclick="irRecoger('${dirRecoger}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/></svg> Mapa de recogida</button>
             <button class="btn-mini-map entrega" onclick="openMaps('${dirEntrega}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg> Mapa de entrega</button>
+            <button class="btn-mini-map llamar" onclick="llamar('${celular}')"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 6 12.5 19.79 19.79 0 0 1 3.07 3.87 2 2 0 0 1 5.05 1.5h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.61a2 2 0 0 1-.45 2.11L9.09 9.09a16 16 0 0 0 6 6l1.15-1.15a2 2 0 0 1 2.11-.45c.84.28 1.71.48 2.61.6A2 2 0 0 1 22 16.92z"/></svg> Llamar al cliente</button>
           </div>
         </div>
       </div>
@@ -220,7 +227,7 @@ function render(){
       </div>
       <div class="col cliente"><b>Cliente:</b><div class="name">${cliente}</div><div class="tel">${celular}</div></div>
       <div class="col prod"><b>Productos:</b><div class="prod-list">${prods.length>0 ? prods.map(pr=>`<div><span>${pr.nombre||pr.name}</span><span>x${pr.cantidad||1}</span></div>`).join('') : `<div><span>Hamburguesa clásica</span><span>x1</span></div>`}</div></div>
-      <div class="col tot"><b>Total del pedido</b><div class="val">$${totalProductos} MXN</div><div class="ship">Envío<br>$${costoEnvio} MXN</div><div class="total"><small>Total</small><strong>$${totalFinal} MXN</strong></div></div>
+      <div class="col tot"><b>Total del pedido</b><div class="val">$${totalPedidoConTarifa.toFixed(1)} MXN</div><div class="ship">Envío<br>$${costoEnvio.toFixed(1)} MXN</div><div class="total"><small>Total</small><strong>$${totalFinal.toFixed(1)} MXN</strong></div></div>
       <div class="col entrega"><b>Entrega en:</b><span>${dirEntrega}<br>${colEntrega}</span></div>
       
       <div class="card-bottom">
@@ -235,6 +242,8 @@ function render(){
 }
 
 window.filtrar = (f)=>{ filtro=f; document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.f===f)); render(); }
+
+// === ACCIONES VINCULADAS A ADMIN Y CONFIRMACIÓN ===
 window.accion = async (id, estado)=>{
   let real = estado;
   if(estado==='ir_a_recoger') real='ir_a_recoger';
@@ -242,10 +251,27 @@ window.accion = async (id, estado)=>{
   if(estado==='ir_a_entregar') real='en_camino';
   if(estado==='entregado') real='finalizado';
   if(estado==='cancelado') real='cancelado';
-  try{ await updateDoc(doc(db,"pedidos_admin",id),{estado:real, actualizadoEn:new Date().toISOString()}); }catch(e){ alert(e.message); }
+  try{
+    // Actualiza en pedidos_admin (lo ve Admin)
+    await updateDoc(doc(db,"pedidos_admin",id),{
+      estado:real,
+      estadoRepartidor:real,
+      actualizadoEn:new Date().toISOString(),
+      actualizadoPor: sesion.usuario
+    });
+    // Si existe también en colección pedidos (confirmación cliente), actualiza ahí también
+    try{
+      const otro = doc(db,"pedidos",id);
+      const snap = await getDoc(otro);
+      if(snap.exists()){
+        await updateDoc(otro,{estado:real, estadoRepartidor:real, actualizadoEn:new Date().toISOString()});
+      }
+    }catch{}
+  }catch(e){ alert(e.message); }
 }
 window.irRecoger = (dir)=>{ window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`,'_blank'); }
 window.openMaps = (dir)=>{ window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`,'_blank'); }
+window.llamar = (tel)=>{ if(tel) window.location.href=`tel:${tel}`; else alert('Sin teléfono'); }
 
 setInterval(()=>{
   document.querySelectorAll('.tiempo-real').forEach(el=>{
