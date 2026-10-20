@@ -4,159 +4,126 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Soy DoloYa - Repartidores</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 18px 30px}
-.logo-area{text-align:center;margin-top:18px}
-.soy{font-size:42px;font-weight:900;color:#000;line-height:.9;letter-spacing:-1px}
-.dolo{font-size:58px;font-weight:900;line-height:.9;letter-spacing:-2px;display:flex;align-items:center;justify-content:center;gap:0}
-.dolo .D{color:#E30613;position:relative;display:inline-block;font-style:italic}
-.dolo .D::before{content:'';position:absolute;left:-18px;top:50%;width:54px;height:6px;background:#E30613;transform:translateY(-18px) skewX(-20deg);border-radius:3px;box-shadow:0 8px 0 #E30613, 0 16px 0 #E30613}
-.dolo .olo{color:#111}
-.dolo .Ya{color:#E30613}
-.repa-line{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px}
-.repa-line span{width:42px;height:4px;background:#E30613;border-radius:2px}
-.repa-line b{font-size:22px;font-weight:800;color:#111}
-.moto-area{margin:18px 0 10px;width:100%;max-width:340px}
-.moto-area img{width:100%;height:auto;object-fit:contain}
-.form{width:100%;max-width:420px;margin-top:18px;display:flex;flex-direction:column;gap:14px}
-.input-box{width:100%;border:1.5px solid #d8dee6;border-radius:999px;padding:14px 18px;display:flex;align-items:center;gap:14px;background:#fff}
-.input-box:focus-within{border-color:#E30613}
-.icon-red{width:36px;height:36px;background:#E30613;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.input-text{display:flex;flex-direction:column;flex:1}
-.input-text label{font-size:14px;font-weight:800;color:#111;line-height:1}
-.input-text input{border:none;outline:none;font-size:13px;color:#111;background:transparent;width:100%;margin-top:2px}
-.input-text input::placeholder{color:#9aa6b8;font-size:13px}
-.eye{cursor:pointer;color:#5b6a7d}
-.btn-login{margin-top:6px;width:100%;background:#E30613;border:none;border-radius:999px;padding:16px;display:flex;align-items:center;justify-content:center;gap:12px;color:white;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px rgba(227,6,19,.25)}
-.btn-login:active{transform:scale(.98)}
-.priv{margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;color:#6b7280;text-align:center}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:18px}
+.soy{font-size:38px;font-weight:900;text-align:center;margin-top:10px}
+.dolo{font-size:54px;font-weight:900;text-align:center}
+.dolo span:first-child{color:#E30613;font-style:italic}
+.dolo span:last-child{color:#E30613}
+.repa{font-size:20px;font-weight:800;text-align:center;margin:6px 0 10px;display:flex;align-items:center;gap:12px;justify-content:center}
+.repa::before,.repa::after{content:'';width:36px;height:4px;background:#E30613;border-radius:2px;display:inline-block}
+.moto{width:300px;max-width:90%;margin:10px auto}
+.moto img{width:100%}
+.box{width:100%;max-width:380px;border:1.5px solid #d9e0ea;border-radius:999px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-top:12px}
+.box b{font-size:14px;display:block}
+.box input{border:none;outline:none;width:100%;font-size:13px;color:#333}
+.icon{background:#E30613;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:900}
+.btn{width:100%;max-width:380px;background:#E30613;border:none;border-radius:999px;color:white;padding:15px;font-size:17px;font-weight:800;margin-top:18px;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+.foot{font-size:11px;color:#777;margin-top:14px;display:flex;align-items:center;gap:6px}
 </style>
 </head>
 <body>
 
-<div class="logo-area">
-  <div class="soy">Soy</div>
-  <div class="dolo"><span class="D">D</span><span class="olo">olo</span><span class="Ya">Ya</span></div>
-  <div class="repa-line"><span></span><b>Repartidores</b><span></span></div>
+<div class="soy">Soy</div>
+<div class="dolo"><span>Dolo</span><span style="color:black">Ya</span></div>
+<div class="repa">Repartidores</div>
+
+<div class="moto">
+<img src="https://cdn-icons-png.flaticon.com/512/2972/2972210.png" style="filter:hue-rotate(-10deg)" onerror="this.src='https://i.imgur.com/8Km9tLL.png'">
 </div>
 
-<div class="moto-area">
-  <img src="https://i.ibb.co/6R7g0x8X/moto-doloya.png" alt="repartidor" onerror="this.style.display='none';document.getElementById('fallbackMoto').style.display='block'">
-  <div id="fallbackMoto" style="display:none;text-align:center">
-    <svg viewBox="0 0 300 200" width="100%"><g><rect x="60" y="50" width="100" height="70" rx="12" fill="#E30613"/><text x="75" y="92" font-size="40" font-weight="900" fill="white">D</text><circle cx="110" cy="170" r="22" fill="#111"/><circle cx="210" cy="170" r="22" fill="#111"/><path d="M130 100 L210 100 L220 130 L120 130 Z" fill="#E30613"/><circle cx="180" cy="55" r="22" fill="#fff" stroke="#111" stroke-width="3"/><rect x="155" y="70" width="55" height="65" rx="10" fill="#E30613"/></g></svg>
-  </div>
+<div class="box">
+  <div class="icon">👤</div>
+  <div style="flex:1"><b>Inicio de sesión</b><input id="user" placeholder="Ingresa tu usuario" value="Jose"></div>
 </div>
 
-<div class="form">
-  <div class="input-box">
-    <div class="icon-red">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="8" r="5"/><path d="M3 21c0-4.97 4.03-9 9-9s9 4.03 9 9v1H3v-1z"/></svg>
-    </div>
-    <div class="input-text">
-      <label>Inicio de sesión</label>
-      <input id="usuario" type="text" placeholder="Ingresa tu usuario" autocomplete="off">
-    </div>
-  </div>
-
-  <div class="input-box">
-    <div class="icon-red">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 1a7 7 0 0 0-7 7v3H4a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-1V8a7 7 0 0 0-7-7zm0 2a5 5 0 0 1 5 5v3H7V8a5 5 0 0 1 5-5zm0 8a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
-    </div>
-    <div class="input-text">
-      <label>Contraseña</label>
-      <input id="clave" type="password" placeholder="Ingresa tu contraseña">
-    </div>
-    <div class="eye" onclick="togglePass()">
-      <svg id="eyeIcon" width="26" height="26" viewBox="0 0 24 24" fill="#6b7280"><path d="M12 4.5C7 4.5 2.7 7.6 1 12c1.7 4.4 6 7.5 11 7.5s9.3-3.1 11-7.5C21.3 7.6 17 4.5 12 4.5zm0 11a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/></svg>
-    </div>
-  </div>
-
-  <button class="btn-login" onclick="login()">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-    Iniciar sesión
-  </button>
-
-  <div class="priv">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="#6b7280"><path d="M12 1a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-1V6a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v3H9V6zm3 7a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/></svg>
-    Al continuar, aceptas nuestros términos y políticas de privacidad
-  </div>
+<div class="box">
+  <div class="icon">🔒</div>
+  <div style="flex:1"><b>Contraseña</b><input id="pass" type="password" placeholder="Ingresa tu contraseña" value="1234"></div>
+  <div onclick="document.getElementById('pass').type=document.getElementById('pass').type=='password'?'text':'password'" style="cursor:pointer">👁️</div>
 </div>
+
+<button class="btn" id="btnLogin">↪ Iniciar sesión</button>
+
+<div class="foot">🔒 Al continuar, aceptas nuestros términos y políticas de privacidad</div>
+<div id="msg" style="margin-top:12px;font-size:12px;color:#E30613;font-weight:700;text-align:center"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
   authDomain: "doloya-repartidores.firebaseapp.com",
+  databaseURL: "https://doloya-repartidores-default-rtdb.firebaseio.com",
   projectId: "doloya-repartidores",
   storageBucket: "doloya-repartidores.firebasestorage.app",
   messagingSenderId: "308893983803",
-  appId: "1:308893983803:web:fe2b85c80f3a203de9a81e",
-  measurementId: "G-4Z5RHMCNC4"
+  appId: "1:308893983803:web:fe2b85c80f3a203de9a81e"
 };
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
-// CREAR REPARTIDOR DE PRUEBA JOSE / 1234
-async function crearRepartidorPrueba(){
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// CREAR JOSE AUTOMATICAMENTE EN REALTIME
+async function crearJose(){
   try{
-    const ref = doc(db, "repartidores", "Jose");
-    await setDoc(ref, {
+    await set(ref(db, 'repartidores/Jose'), {
       usuario: "Jose",
       nombre: "Jose",
       password: "1234",
-      clave: "1234",
       rol: "repartidor",
       estado: "disponible",
-      foto: "",
-      creadoEn: new Date()
-    }, { merge: true });
-    console.log("Repartidor Jose creado");
-  }catch(e){ console.log(e.message); }
+      creadoEn: new Date().toISOString()
+    });
+    console.log("Jose creado en RTDB");
+  }catch(e){
+    document.getElementById('msg').textContent = "Error RTDB: " + e.message + " - Activa las reglas";
+  }
 }
-crearRepartidorPrueba();
+crearJose();
 
-window.togglePass = ()=>{
-  const c=document.getElementById('clave');
-  c.type = c.type==='password'?'text':'password';
-}
+document.getElementById('btnLogin').addEventListener('click', async ()=>{
+  const u = document.getElementById('user').value.trim();
+  const p = document.getElementById('pass').value.trim();
+  const msg = document.getElementById('msg');
+  
+  if(!u || !p){ msg.textContent="Ingresa usuario y contraseña"; return; }
 
-window.login = async ()=>{
-  const u = document.getElementById('usuario').value.trim();
-  const p = document.getElementById('clave').value.trim();
-  if(!u || !p){ alert("Ingresa usuario y contraseña"); return; }
+  msg.textContent="Ingresando...";
 
-  // VALIDACION LOCAL + FIREBASE
-  if(u==="Jose" && p==="1234"){
-    localStorage.setItem("repartidor_sesion", JSON.stringify({usuario:"Jose", nombre:"Jose", rol:"repartidor", id:"Jose"}));
+  // LOGIN LOCAL SIEMPRE FUNCIONA
+  if(u.toLowerCase()==="jose" && p==="1234"){
+    localStorage.setItem("repartidor_sesion", JSON.stringify({usuario:"Jose", nombre:"Jose", rol:"repartidor"}));
     window.location.href="panelrepa.html";
     return;
   }
 
-  // Buscar en Firebase
+  // INTENTAR EN REALTIME TAMBIEN
   try{
-    const q = query(collection(db,"repartidores"), where("usuario","==",u), where("password","==",p));
-    const snap = await getDocs(q);
-    if(!snap.empty){
-      const data=snap.docs[0].data();
-      localStorage.setItem("repartidor_sesion", JSON.stringify(data));
-      window.location.href="panelrepa.html";
+    const snap = await get(child(ref(db), `repartidores/${u}`));
+    if(snap.exists()){
+      const data = snap.val();
+      if(data.password===p){
+        localStorage.setItem("repartidor_sesion", JSON.stringify(data));
+        window.location.href="panelrepa.html";
+      }else{
+        msg.textContent="Contraseña incorrecta";
+      }
     }else{
-      alert("Usuario o contraseña incorrectos");
+      msg.textContent="Usuario no encontrado - Usa Jose / 1234";
     }
   }catch(e){
-    // fallback
-    if(u==="Jose" && p==="1234"){
+    // SI FALLA POR REGLAS, DEJA ENTRAR IGUAL CON JOSE
+    if(u.toLowerCase()==="jose" && p==="1234"){
       localStorage.setItem("repartidor_sesion", JSON.stringify({usuario:"Jose"}));
       window.location.href="panelrepa.html";
     }else{
-      alert("Error: "+e.message);
+      msg.textContent="Error Firebase: "+e.message;
     }
   }
-}
+});
 </script>
 </body>
 </html>
