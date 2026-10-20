@@ -27,12 +27,17 @@ body{background:#f6f8fb;min-height:100vh}
 .tab svg{width:18px;height:18px;flex-shrink:0}
 .container{padding:0 18px 30px}
 .card{background:white;border-radius:14px;border:1px solid #e8edf5;padding:12px 14px;display:grid;grid-template-columns:200px 210px 170px 150px 190px 140px;gap:10px;align-items:start;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.card-top{grid-column:1 / -1;display:flex;gap:8px;margin-bottom:2px}
+.card-top{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
 .badge-id{background:#E30613;color:white;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:800}
-.badge-estado{background:#E30613;color:white;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:700;text-transform:capitalize}
+.time-box{display:flex;align-items:center;gap:8px;font-size:11px;color:#334155}
+.tiempo-real{border-radius:999px;padding:3px 10px;font-size:10px;font-weight:900;display:inline-flex;align-items:center;gap:4px;color:white}
+.tiempo-verde{background:#16a34a}
+.tiempo-amarillo{background:#EAB308}
+.tiempo-rojo{background:#EF4444}
 .col{display:flex;flex-direction:column;gap:4px}
 .shop{display:flex;gap:10px}
-.shop-icon{width:52px;height:52px;background:#C00612;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;font-weight:800;font-size:10px;text-align:center;line-height:1}
+.shop-icon{width:52px;height:52px;background:#f1f5f9;border:2px solid #e5e7eb;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.shop-icon img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .shop-name{font-size:13px;font-weight:700;color:#111}
 .shop-sub{font-size:11px;color:#64748b}
 .recoger{margin-top:6px;display:flex;flex-direction:column;gap:2px}
@@ -46,7 +51,7 @@ body{background:#f6f8fb;min-height:100vh}
 .cliente b{font-size:11px;color:#111;display:flex;align-items:center;gap:6px}
 .cliente .name{font-size:11px;color:#475569;margin-left:20px}
 .cliente .tel{font-size:11px;color:#5b708a;display:flex;align-items:center;gap:4px;margin-left:20px}
-.btn-map{margin-left:20px;margin-top:6px;border:1px solid #fecdd3;background:#fff1f2;color:#E30613;border-radius:999px;padding:5px 10px;font-size:10px;font-weight:600;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
+.btn-map-small{margin-left:20px;margin-top:6px;border:1px solid #fecdd3;background:#fff1f2;color:#E30613;border-radius:999px;padding:5px 10px;font-size:10px;font-weight:600;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
 .prod b{font-size:11px;color:#111;display:flex;align-items:center;gap:6px}
 .prod-list{margin-left:22px;margin-top:4px;display:flex;flex-direction:column;gap:2px}
 .prod-list div{display:flex;justify-content:space-between;font-size:11px;color:#5b708a}
@@ -58,13 +63,11 @@ body{background:#f6f8fb;min-height:100vh}
 .tot .total strong{font-size:18px;color:#E30613;font-weight:800}
 .entrega b{font-size:11px;color:#111;display:flex;align-items:center;gap:6px}
 .entrega span{font-size:11px;color:#5b708a;margin-left:20px;line-height:1.3;display:block}
-.entrega .hora{margin-top:10px;display:flex;align-items:center;gap:6px;font-size:11px;color:#475569;margin-left:20px}
-.side{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
-.badge-nuevo{background:#E30613;color:white;border-radius:999px;padding:4px 12px;font-size:10px;font-weight:700}
-.btn-entregado{background:#16a34a;color:white;border:none;border-radius:10px;padding:9px 16px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer;width:100%;justify-content:center}
-.btn-cancelado{background:white;border:1px solid #cbd5e1;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer;width:100%;justify-content:center;color:#334155}
-@media(max-width:980px){.card{grid-template-columns:1fr 1fr;gap:14px}.side{grid-column:1 / -1;flex-direction:row;justify-content:space-between;align-items:center}.side .btn-entregado,.side .btn-cancelado{width:auto}}
-@media(max-width:640px){.header h1{font-size:22px}.tabs{padding:10px 12px}.container{padding:0 10px 90px}.card{grid-template-columns:1fr;gap:12px;padding:12px}.shop-icon{width:48px;height:48px}.actions-row{gap:6px}.side{flex-direction:column;align-items:stretch}}
+.side{display:flex;flex-direction:column;gap:8px;align-items:flex-end;justify-content:flex-start}
+.btn-entregado{background:#16a34a;color:white;border:none;border-radius:10px;padding:9px 16px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer;width:130px;justify-content:center;margin-left:auto}
+.btn-cancelado{background:white;border:1px solid #cbd5e1;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer;width:130px;justify-content:center;color:#334155;margin-left:auto}
+@media(max-width:980px){.card{grid-template-columns:1fr 1fr;gap:14px}.side{grid-column:1 / -1;flex-direction:row;justify-content:flex-end;gap:10px}.side .btn-entregado,.side .btn-cancelado{width:auto}}
+@media(max-width:640px){.header h1{font-size:22px}.tabs{padding:10px 12px}.container{padding:0 10px 90px}.card{grid-template-columns:1fr;gap:12px;padding:12px}.shop-icon{width:48px;height:48px}.actions-row{gap:6px}.side{flex-direction:row;justify-content:flex-end}}
 </style>
 </head>
 <body>
@@ -111,24 +114,39 @@ let pedidos = [];
 let ultimoCount = 0;
 let primero = true;
 
+function calcularTiempoReal(sec){
+  if(!sec) return {texto:'0s', clase:'tiempo-verde'};
+  const diff=Math.floor(Date.now()/1000-sec);
+  const min=Math.floor(diff/60); const seg=diff%60;
+  let texto=''; if(diff<60) texto=diff+'s'; else if(diff<3600) texto=min+'m '+seg+'s'; else {const h=Math.floor(min/60); const m=min%60; texto=h+'h '+m+'m';}
+  let clase='tiempo-verde'; if(diff<840) clase='tiempo-verde'; else if(diff<1080) clase='tiempo-amarillo'; else clase='tiempo-rojo';
+  return {texto, clase};
+}
+
 function sonarDoloYa(){
   const bell = document.getElementById('bell');
   bell.classList.add('vibrar');
-  setTimeout(()=>bell.classList.remove('vibrar'), 3500);
+  setTimeout(()=>bell.classList.remove('vibrar'), 3800);
+  // Sonido DoloYa fuerte - necesitas interactuar una vez para que suene
   try{
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type='sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime+0.15);
-    osc.frequency.exponentialRampToValueAtTime(700, ctx.currentTime+0.5);
+    ctx.resume();
+    const osc1 = ctx.createOscillator(); const osc2 = ctx.createOscillator(); const gain = ctx.createGain();
+    osc1.type='sine'; osc2.type='triangle';
+    osc1.frequency.setValueAtTime(900, ctx.currentTime);
+    osc1.frequency.linearRampToValueAtTime(1400, ctx.currentTime+0.2);
+    osc1.frequency.linearRampToValueAtTime(800, ctx.currentTime+0.6);
+    osc2.frequency.setValueAtTime(450, ctx.currentTime);
     gain.gain.setValueAtTime(0.9, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.7);
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.start(); osc.stop(ctx.currentTime+0.7);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.8);
+    osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
+    osc1.start(); osc2.start(); osc1.stop(ctx.currentTime+0.8); osc2.stop(ctx.currentTime+0.8);
+  }catch(e){}
+  try{
+    const audio = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+    audio.volume=1; audio.play().catch(()=>{});
   }catch{}
-  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance("Nuevo pedido DoloYa"); u.lang='es-MX'; u.rate=1.1; speechSynthesis.speak(u);}catch{}
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance("Nuevo pedido DoloYa, pedido asignado"); u.lang='es-MX'; u.rate=1; u.volume=1; speechSynthesis.speak(u);}catch{}
 }
 
 function mapEstado(p){
@@ -143,9 +161,8 @@ function mapEstado(p){
 }
 
 function render(){
-  // === SOLO PEDIDOS ASIGNADOS POR ADMIN - CORREGIDO COMO PEDISTE ===
   const mios = pedidos.filter(p=>{
-    const esDeJose = p.repartidorId===sesion.usuario || p.repartidorId==='Jose' || p.repartidorNombre===sesion.nombre || p.repartidorNombre==='Jose' || p.repartidorId==='rep1' || p.repartidorNombre==='Carlos' || p.repartidorNombre==='Jose';
+    const esDeJose = p.repartidorId===sesion.usuario || p.repartidorId==='Jose' || p.repartidorNombre===sesion.nombre || p.repartidorNombre==='Jose';
     const yaFueEnviado = !['nuevo','listo_para_admin','listo','sin_enviar','',undefined].includes(p.estado);
     return esDeJose && yaFueEnviado;
   });
@@ -174,43 +191,37 @@ function render(){
   }
 
   lista.innerHTML = filtrados.map(p=>{
-    // === DATOS REALES DE FIREBASE COMO EN TU CAPTURA ===
-    const codigoReal = p.codigo || p.id; // NUMERO REAL DE FIREBASE ARRIBA A LA IZQUIERDA
-    const idCorto = codigoReal.toString().slice(-4).toUpperCase();
-    
-    // Cliente real
+    const codigoReal = p.codigo || p.id;
     const cliente = p.cliente?.nombre || p.nombre || p.detalles?.nombre || 'Cliente';
-    const celular = p.cliente?.celular || p.telefono || p.detalles?.telefono || p.detalles?.celular || '';
-    
-    // Restaurante real
-    const restNombre = p.restaurante?.nombre || p.tienda?.nombre || p.restauranteNombre || 'Burger House';
-    const restCat = p.restaurante?.categoria || p.restaurante?.tipo || 'Comida rápida';
+    const celular = p.cliente?.celular || p.telefono || p.detalles?.telefono || '';
+    const restNombre = p.restaurante?.nombre || p.tienda?.nombre || 'Burger House';
+    const restCat = p.restaurante?.categoria || 'Comida rápida';
+    const restLogo = p.restaurante?.logo || p.tienda?.logo || p.restaurante?.imagen || '';
     const dirRecoger = p.restaurante?.direccion || p.tienda?.direccion || 'Av. Hidalgo #198';
-    const colRecoger = p.restaurante?.colonia || p.tienda?.colonia || 'Col. Centro, Dolores Hidalgo, Gto.';
+    const colRecoger = p.restaurante?.colonia || 'Col. Centro, Dolores Hidalgo, Gto.';
+    const dirEntrega = p.cliente?.direccion || p.direccionEntrega || p.detalles?.direccion || 'Calle Independencia #124';
+    const colEntrega = p.cliente?.colonia || 'Col. Centro, Dolores Hidalgo, Gto.';
+    const prods = p.productos || [];
+    const totalProductos = p.totales?.costoProductos ?? p.totalProductos ?? 89;
+    const costoEnvio = p.totales?.costoEnvio ?? 25;
+    const totalFinal = p.totales?.total ?? (Number(totalProductos)+Number(costoEnvio));
     
-    // Direccion entrega real
-    const dirEntrega = p.cliente?.direccion || p.detalles?.direccion || p.direccionEntrega || 'Calle Independencia #124';
-    const colEntrega = p.cliente?.colonia || p.detalles?.colonia || 'Col. Centro, Dolores Hidalgo, Gto.';
-    
-    // Productos reales
-    const prods = p.productos || p.items || [];
-    
-    // Totales reales - COINCIDEN CON FIREBASE
-    const totalProductos = p.totales?.costoProductos ?? p.totales?.totalProductos ?? p.totales?.subtotal ?? p.totalProductos ?? 89;
-    const costoEnvio = p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? 25;
-    const totalFinal = p.totales?.total ?? p.total ?? (Number(totalProductos)+Number(costoEnvio));
-    
-    const hora = p.enviadoARepartidorEn ? new Date(p.enviadoARepartidorEn.seconds ? p.enviadoARepartidorEn.seconds*1000 : p.enviadoARepartidorEn).toLocaleString('es-MX',{hour:'2-digit',minute:'2-digit'}) : 'Hoy, 12:34 p.m.';
+    let tsSec=0; let horaStr='12:34 p.m.';
+    if(p.enviadoARepartidorEn?.seconds) tsSec=p.enviadoARepartidorEn.seconds;
+    else if(p.timestamp?.seconds) tsSec=p.timestamp.seconds;
+    else if(p.timestampAdmin?.seconds) tsSec=p.timestampAdmin.seconds;
+    if(tsSec) horaStr=new Date(tsSec*1000).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+    const tiempo = calcularTiempoReal(tsSec);
 
     return `
     <div class="card">
       <div class="card-top">
         <span class="badge-id">#${codigoReal}</span>
-        <span class="badge-estado">${mapEstado(p).replace(/_/g,' ')}</span>
+        <div class="time-box"><span>${horaStr}</span><span class="tiempo-real ${tiempo.clase}" data-ts="${tsSec}">${tiempo.texto}</span></div>
       </div>
       <div class="col">
         <div class="shop">
-          <div class="shop-icon">${restNombre.substring(0,12)}</div>
+          <div class="shop-icon">${restLogo ? `<img src="${restLogo}" onerror="this.style.display='none'">` : `<span style="font-size:9px;color:#E30613;font-weight:800">LOGO</span>`}</div>
           <div><div class="shop-name">${restNombre}</div><div class="shop-sub">${restCat}</div></div>
         </div>
         <div class="recoger">
@@ -218,24 +229,23 @@ function render(){
           <span>${dirRecoger}<br>${colRecoger}</span>
         </div>
         <div class="actions-row">
-          <button class="btn-pill red" onclick="irRecoger('${dirRecoger}')">Ir a recoger</button>
-          <button class="btn-pill" onclick="accion('${p.id}','recogido')">Recogido</button>
+          <button class="btn-pill red" onclick="irRecoger('${dirRecoger}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Ir a recoger</button>
+          <button class="btn-pill" onclick="accion('${p.id}','recogido')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Recogido</button>
         </div>
       </div>
       <div class="col cliente">
         <b>Cliente:</b>
         <div class="name">${cliente}</div>
         <div class="tel">${celular}</div>
-        <button class="btn-map" onclick="openMaps('${dirEntrega}')">Ir a Google Maps</button>
         <div class="actions-row" style="margin-left:20px;margin-top:8px">
-          <button class="btn-pill green" onclick="accion('${p.id}','recogido')">Recogido</button>
-          <button class="btn-pill" onclick="llamar('${celular}')">Llamar al cliente</button>
+          <button class="btn-pill green" onclick="accion('${p.id}','recogido')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Recogido</button>
+          <button class="btn-pill" onclick="llamar('${celular}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 6 12.5 19.79 19.79 0 0 1 3.07 3.87 2 2 0 0 1 5.05 1.5h3a2 2 0 0 1 2 1.72c.12.9.32 1.77.6 2.61a2 2 0 0 1-.45 2.11L9.09 9.09a16 16 0 0 0 6 6l1.15-1.15a2 2 0 0 1 2.11-.45c.84.28 1.71.48 2.61.6A2 2 0 0 1 22 16.92z"/></svg> Llamar al cliente</button>
         </div>
       </div>
       <div class="col prod">
         <b>Productos:</b>
         <div class="prod-list">
-          ${prods.length>0 ? prods.map(pr=>`<div><span>${pr.nombre||pr.name}</span><span>x${pr.cantidad||pr.cant||1}</span></div>`).join('') : `<div><span>Hamburguesa clásica</span><span>x1</span></div><div><span>Papas a la francesa</span><span>x1</span></div><div><span>Refresco 600 ml</span><span>x1</span></div>`}
+          ${prods.length>0 ? prods.map(pr=>`<div><span>${pr.nombre||pr.name}</span><span>x${pr.cantidad||1}</span></div>`).join('') : `<div><span>Hamburguesa clásica</span><span>x1</span></div><div><span>Papas</span><span>x1</span></div>`}
         </div>
       </div>
       <div class="col tot">
@@ -247,15 +257,21 @@ function render(){
       <div class="col entrega">
         <b>Entrega en:</b>
         <span>${dirEntrega}<br>${colEntrega}</span>
-        <div class="hora">${hora}</div>
+        <button class="btn-pill red" style="margin-left:20px;margin-top:10px" onclick="openMaps('${dirEntrega}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg> Ir a Google Maps</button>
       </div>
       <div class="col side">
-        <span class="badge-nuevo">Nuevo</span>
-        <button class="btn-entregado" onclick="accion('${p.id}','entregado')">Entregado</button>
-        <button class="btn-cancelado" onclick="accion('${p.id}','cancelado')">Cancelado</button>
+        <button class="btn-entregado" onclick="accion('${p.id}','entregado')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Entregado</button>
+        <button class="btn-cancelado" onclick="accion('${p.id}','cancelado')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancelado</button>
       </div>
     </div>`;
   }).join('');
+  
+  // Actualiza tiempos cada segundo
+  setTimeout(()=>{
+    document.querySelectorAll('.tiempo-real').forEach(el=>{
+      const ts=parseInt(el.dataset.ts||0); if(ts){ const t=calcularTiempoReal(ts); el.textContent=t.texto; el.className='tiempo-real '+t.clase; }
+    });
+  },100);
 }
 
 window.filtrar = (f)=>{ filtro=f; document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.f===f)); render(); }
@@ -271,6 +287,15 @@ window.accion = async (id, estado)=>{
 window.irRecoger = (dir)=>{ window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`,'_blank'); }
 window.openMaps = (dir)=>{ window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`,'_blank'); }
 window.llamar = (tel)=>{ window.location.href=`tel:${tel}`; }
+
+setInterval(()=>{
+  document.querySelectorAll('.tiempo-real').forEach(el=>{
+    const ts=parseInt(el.dataset.ts||0); if(ts){ const t=calcularTiempoReal(ts); el.textContent=t.texto; el.className='tiempo-real '+t.clase; }
+  });
+},1000);
+
+// Necesitas tocar una vez la pantalla para activar sonido en móviles - lo desbloqueamos al primer click
+document.addEventListener('click', function unlock(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); ctx.resume(); }catch{}; document.removeEventListener('click', unlock); }, {once:true});
 
 onSnapshot(collection(db,"pedidos_admin"), (snap)=>{
   pedidos = snap.docs.map(d=>({id:d.id, ...d.data()}));
