@@ -9,10 +9,18 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
 body{height:100vh;display:flex;background:#C00612;overflow:hidden}
 .sidebar{width:210px;background:white;display:flex;flex-direction:column;justify-content:space-between;padding:14px 10px;flex-shrink:0}
-.logo-top{text-align:center;padding:8px 0 18px}
+.logo-top{text-align:center;padding:8px 0 12px}
 .logo-top b{font-size:28px;font-weight:900;color:#C00612;line-height:.9;display:flex;align-items:center;justify-content:center;gap:2px}
 .logo-top b i{font-style:italic}
 .logo-top small{display:block;font-size:20px;font-weight:900;color:#C00612;margin-top:-2px}
+.conex-box{background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:12px;padding:10px 10px;margin-bottom:12px;display:flex;flex-direction:column;gap:8px}
+.conex-label{font-size:11px;font-weight:800;color:#334155;display:flex;align-items:center;gap:6px}
+.switch{width:100%;height:32px;border-radius:999px;background:#cbd5e1;position:relative;cursor:pointer;transition:.3s;display:flex;align-items:center;padding:3px}
+.switch.on{background:#16a34a}
+.switch.off{background:#94a3b8}
+.knob{width:26px;height:26px;background:white;border-radius:50%;transition:.3s;box-shadow:0 2px 6px rgba(0,0,0,.2);transform:translateX(0)}
+.switch.on .knob{transform:translateX(132px)}
+.switch-text{position:absolute;left:0;right:0;text-align:center;font-size:10px;font-weight:800;color:white;pointer-events:none}
 .menu{display:flex;flex-direction:column;gap:6px}
 .item{padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#2b3440;cursor:pointer;position:relative}
 .item.active{background:#C00612;color:white}
@@ -29,7 +37,7 @@ body{height:100vh;display:flex;background:#C00612;overflow:hidden}
 .bell.vibrar{animation:bellAnim .15s infinite}
 @keyframes bellAnim{0%{transform:rotate(-15deg) scale(1.2)}50%{transform:rotate(15deg) scale(1.3)}100%{transform:rotate(-15deg) scale(1.2)}}
 .btn-cerrar{background:white;border:none;border-radius:999px;padding:8px 16px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#C00612;cursor:pointer}
-.content{flex:1;overflow-y:auto;padding:10px 14px 90px}
+.content{flex:1;overflow-y:auto;padding:10px 14px 90px;position:relative}
 .welcome{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;padding:20px}
 .moto-icon{width:140px;height:100px;margin-bottom:14px}
 .welcome h1{font-size:42px;font-weight:900;line-height:1.05}
@@ -46,6 +54,10 @@ body{height:100vh;display:flex;background:#C00612;overflow:hidden}
 .btns{display:flex;gap:8px;margin-top:10px}
 .btn-rojo{background:#16a34a;color:white;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;flex:1;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .btn-gris{background:#334155;color:white;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;flex:1;cursor:pointer}
+.overlay-conex{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(192,6,18,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;color:white;text-align:center;z-index:10;padding:20px}
+.overlay-conex h2{font-size:28px;font-weight:900;margin-bottom:10px}
+.overlay-conex p{font-size:14px;opacity:.9;margin-bottom:18px}
+.btn-activar{background:white;color:#C00612;border:none;border-radius:999px;padding:14px 28px;font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.25)}
 .m-bottom-nav{display:none}
 @media(max-width:768px){
   body{flex-direction:column}
@@ -59,6 +71,9 @@ body{height:100vh;display:flex;background:#C00612;overflow:hidden}
   .topbar{justify-content:space-between}
   .logo-mobile{display:flex;align-items:center;gap:6px;color:white;font-weight:900;font-size:18px}
   .content{padding-bottom:80px}
+  .conex-mobile{position:fixed;top:58px;left:10px;right:10px;background:white;border-radius:12px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;z-index:15;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  .conex-mobile .switch{width:90px}
+  .conex-mobile .switch.on .knob{transform:translateX(58px)}
 }
 .hidden{display:none!important}
 </style>
@@ -68,31 +83,42 @@ body{height:100vh;display:flex;background:#C00612;overflow:hidden}
 <div class="sidebar">
   <div>
     <div class="logo-top"><b><i>D</i>DoloYa</b><small>DoloYa</small></div>
+    
+    <div class="conex-box">
+      <div class="conex-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        Estado de conexión
+      </div>
+      <div class="switch off" id="switchDesk" onclick="toggleConexion()">
+        <div class="switch-text" id="switchTextDesk">DESCONECTADO</div>
+        <div class="knob"></div>
+      </div>
+    </div>
+
     <div class="menu">
-      <div class="item active" data-v="pedidos" onclick="cambiar('pedidos')">
+      <div class="item active" data-v="pedidos" onclick="irCategoria('pedidos')">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 7V3.5L18.5 9H16a1 1 0 0 1-1-1zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
         Pedidos <span class="badge-count" id="countPed">0</span>
       </div>
-      <div class="item" data-v="camino" onclick="cambiar('camino')">
+      <div class="item" data-v="camino" onclick="irCategoria('en_camino')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/><path d="M5 17l2-6h8l2 6"/><path d="M10 11V7h2"/><circle cx="7" cy="7" r="2"/></svg>
         En camino
       </div>
-      <div class="item" data-v="historial" onclick="cambiar('historial')">
+      <div class="item" data-v="historial" onclick="irCategoria('historial')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
         Historial
       </div>
-      <div class="item" data-v="perfil" onclick="cambiar('perfil')">
+      <div class="item" data-v="perfil" onclick="irCategoria('perfil')">
         <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4.5-7 8-7s8 3 8 7v1H4v-1z"/></svg>
         Perfil
       </div>
-      <div class="item" data-v="config" onclick="cambiar('config')">
+      <div class="item" data-v="config" onclick="irCategoria('configuracion')">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 9 15a1.65 1.65 0 0 0-1-1.51V13a2 2 0 0 1 4 0v.49c.4.24.85.4 1.33.48z"/></svg>
         Configuración
       </div>
     </div>
   </div>
   <div class="logo-bottom">
-    <svg width="46" height="28" viewBox="0 0 46 28" fill="#C00612"><path d="M2 18c2-6 8-10 18-12l2 2-2 2c-2 1-5 3-6 5l-3 6H2z"/></svg>
     <b>DoloYa</b><small>Tu esfuerzo<br>nos mueve</small>
   </div>
 </div>
@@ -112,14 +138,35 @@ body{height:100vh;display:flex;background:#C00612;overflow:hidden}
     </div>
   </div>
 
+  <div class="conex-mobile" id="conexMob" style="display:none">
+    <div style="font-size:11px;font-weight:800;color:#334155;display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+      <span id="conexMobLabel">Desconectado</span>
+    </div>
+    <div class="switch off" id="switchMob" onclick="toggleConexion()">
+      <div class="switch-text" id="switchTextMob">OFF</div>
+      <div class="knob"></div>
+    </div>
+  </div>
+
   <div class="content" id="content">
+    <div id="overlayDesconectado" class="overlay-conex hidden">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/><path d="M8.5 8.5a3 3 0 0 1 4 4"/><path d="M9 12h6"/><path d="M12 8v1"/></svg>
+      <h2>Activa tu conexión</h2>
+      <p>Debes estar conectado para recibir pedidos</p>
+      <button class="btn-activar" onclick="toggleConexion()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C00612" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+        Activar ahora
+      </button>
+    </div>
+
     <div id="view-bienvenida" class="welcome">
       <div class="moto-icon">
         <svg viewBox="0 0 120 80" fill="white"><path d="M20 52c0-10 6-18 18-20l8-2 4 8 6 2 8-18 10-6 6 6-6 8 6 2 8 8 6 14-8 4-6-4-8 2-6 4-14-2-10-2-12-2zM28 54a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm56 0a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM10 38h20v3H10zm4 6h16v2H14zm4 6h12v2H18z"/><rect x="18" y="18" width="14" height="18" rx="2" fill="white" stroke="#C00612" stroke-width="1"/><path d="M20 22h8v2H20z" fill="#C00612"/></svg>
       </div>
       <h1>¡Gracias por ser parte<br>de DoloYa!</h1>
       <p>Tu compromiso y esfuerzo hacen que todo llegue más lejos.</p>
-      <button class="btn-sigue" onclick="cambiar('pedidos')">
+      <button class="btn-sigue" onclick="irCategoria('pedidos')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#C00612"><path d="M12 21s-6-4.5-9-8.5A5 5 0 0 1 12 7a5 5 0 0 1 9 5.5C18 16.5 12 21 12 21z"/></svg>
         ¡Sigue rodando!
       </button>
@@ -132,19 +179,19 @@ body{height:100vh;display:flex;background:#C00612;overflow:hidden}
 </div>
 
 <div class="m-bottom-nav">
-  <div class="m-nav-item active" data-v="pedidos" onclick="cambiar('pedidos')">
+  <div class="m-nav-item active" data-v="pedidos" onclick="irCategoria('pedidos')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg>
     Pedidos<span class="badge-count" id="mCountPed">0</span>
   </div>
-  <div class="m-nav-item" data-v="camino" onclick="cambiar('camino')">
+  <div class="m-nav-item" data-v="en_camino" onclick="irCategoria('en_camino')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17a2 2 0 1 0 0 4M17 17a2 2 0 1 0 0 4"/><path d="M5 17l2-6h8l2 6"/></svg>
     En camino
   </div>
-  <div class="m-nav-item" data-v="historial" onclick="cambiar('historial')">
+  <div class="m-nav-item" data-v="historial" onclick="irCategoria('historial')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
     Historial
   </div>
-  <div class="m-nav-item" data-v="perfil" onclick="cambiar('perfil')">
+  <div class="m-nav-item" data-v="perfil" onclick="irCategoria('perfil')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="3"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>
     Perfil
   </div>
@@ -152,7 +199,8 @@ body{height:100vh;display:flex;background:#C00612;overflow:hidden}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 const configAdmin = {
   apiKey: "AIzaSyDLKngPyi_SWAXEQwdrHO5h8L8OufulAR4",
@@ -162,13 +210,69 @@ const configAdmin = {
   messagingSenderId: "832228761099",
   appId: "1:832228761099:web:ddd4b6a0ee0d7f0494b10e"
 };
+const configRepa = {
+  apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
+  authDomain: "doloya-repartidores.firebaseapp.com",
+  databaseURL: "https://doloya-repartidores-default-rtdb.firebaseio.com",
+  projectId: "doloya-repartidores",
+  storageBucket: "doloya-repartidores.firebasestorage.app",
+  messagingSenderId: "308893983803",
+  appId: "1:308893983803:web:fe2b85c80f3a203de9a81e"
+};
 const appAdmin = initializeApp(configAdmin, "admin");
+const appRepa = initializeApp(configRepa, "repa");
 const dbAdmin = getFirestore(appAdmin);
+const dbRepa = getDatabase(appRepa);
 
 let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
+let conectado = false;
 let pedidosAll = [];
 let primer = true;
 let ultimoTotal = 0;
+
+const rRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/conectado`);
+onValue(rRef, (snap)=>{
+  if(snap.exists()){
+    conectado = snap.val()===true;
+  }else{
+    conectado = false;
+  }
+  actualizarUIconexion();
+  render();
+});
+
+function actualizarUIconexion(){
+  const d = document.getElementById('switchDesk');
+  const tD = document.getElementById('switchTextDesk');
+  const m = document.getElementById('switchMob');
+  const tM = document.getElementById('switchTextMob');
+  const lM = document.getElementById('conexMobLabel');
+  if(conectado){
+    d.className='switch on'; tD.textContent='CONECTADO';
+    m.className='switch on'; tM.textContent='ON'; lM.textContent='Conectado';
+  }else{
+    d.className='switch off'; tD.textContent='DESCONECTADO';
+    m.className='switch off'; tM.textContent='OFF'; lM.textContent='Desconectado';
+  }
+  const overlay = document.getElementById('overlayDesconectado');
+  const current = document.querySelector('.item.active')?.dataset.v || document.querySelector('.m-nav-item.active')?.dataset.v;
+  if(current==='pedidos' && !conectado){
+    overlay.classList.remove('hidden');
+  }else{
+    overlay.classList.add('hidden');
+  }
+}
+
+window.toggleConexion = async ()=>{
+  conectado = !conectado;
+  actualizarUIconexion();
+  try{
+    await set(rRef, conectado);
+    await set(ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/estadoConexion`), conectado? 'conectado':'desconectado');
+    await set(ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/ultimaConexion`), new Date().toISOString());
+  }catch(e){ console.log(e); }
+  render();
+}
 
 function sonar(){
   const bell = document.getElementById('bell');
@@ -194,11 +298,14 @@ function render(){
   document.getElementById('mCountPed').textContent = nuevos.length;
   document.getElementById('bellCount').textContent = nuevos.length;
 
-  if(!primer && nuevos.length>ultimoTotal) sonar();
+  if(!primer && nuevos.length>ultimoTotal && conectado) sonar();
   ultimoTotal = nuevos.length; primer=false;
 
   const viewPed = document.getElementById('view-pedidos');
-  if(nuevos.length===0){
+  if(!conectado){
+    // no renderiza lista, solo overlay
+    viewPed.innerHTML='';
+  }else if(nuevos.length===0){
     viewPed.innerHTML='<div style="color:white;text-align:center;padding:40px;font-weight:700">No tienes pedidos nuevos<br><small style="font-weight:400">Esperando que admin te asigne</small></div>';
   }else{
     viewPed.innerHTML = nuevos.map(p=>card(p,true)).join('');
@@ -237,24 +344,55 @@ function card(p, showRecoger=false, showEntregar=false, isHist=false){
   </div>`;
 }
 
-window.cambiar = (v)=>{
-  document.querySelectorAll('.item').forEach(i=>i.classList.toggle('active', i.dataset.v===v));
-  document.querySelectorAll('.m-nav-item').forEach(i=>i.classList.toggle('active', i.dataset.v===v));
-  document.getElementById('view-bienvenida').classList.toggle('hidden', v!=='bienvenida');
-  document.getElementById('view-pedidos').classList.toggle('hidden', v!=='pedidos');
-  document.getElementById('view-camino').classList.toggle('hidden', v!=='camino');
-  document.getElementById('view-historial').classList.toggle('hidden', v!=='historial');
-  if(v==='pedidos' || v==='camino' || v==='historial'){
-    document.getElementById('view-bienvenida').classList.add('hidden');
+window.irCategoria = (ruta)=>{
+  // rutas .html como pediste
+  if(ruta==='pedidos'){
+    cambiar('pedidos');
+    if(!conectado){
+      document.getElementById('overlayDesconectado').classList.remove('hidden');
+    }
+    return;
   }
-  if(v==='perfil' || v==='config'){
+  if(ruta==='en_camino'){
+    // si ya existe archivo, va alla, si no cambia vista
+    const existe = false; // deja en false para no romper si no has creado los html
+    if(existe) window.location.href='en_camino.html';
+    else cambiar('camino');
+    return;
+  }
+  if(ruta==='historial'){
+    if(false) window.location.href='historial.html';
+    else cambiar('camino','historial');
+    cambiar('historial');
+    return;
+  }
+  if(ruta==='perfil'){
+    window.location.href='perfil.html';
+    return;
+  }
+  if(ruta==='configuracion'){
+    window.location.href='configuracion.html';
+    return;
+  }
+}
+
+window.cambiar = (v)=>{
+  document.querySelectorAll('.item').forEach(i=>i.classList.toggle('active', i.dataset.v===v || (v==='en_camino'&&i.dataset.v==='camino') ));
+  document.querySelectorAll('.m-nav-item').forEach(i=>i.classList.toggle('active', i.dataset.v===v || (v==='camino'&&i.dataset.v==='en_camino') ));
+  document.getElementById('view-bienvenida').classList.add('hidden');
+  document.getElementById('view-pedidos').classList.toggle('hidden', v!=='pedidos');
+  document.getElementById('view-camino').classList.toggle('hidden', v!=='camino' && v!=='en_camino' && v!=='historial');
+  document.getElementById('view-historial').classList.toggle('hidden', v!=='historial');
+  if(v==='pedidos' && !conectado){
+    document.getElementById('overlayDesconectado').classList.remove('hidden');
+  }else{
+    document.getElementById('overlayDesconectado').classList.add('hidden');
+  }
+  if(v==='bienvenida'){
+    document.getElementById('view-bienvenida').classList.remove('hidden');
     document.getElementById('view-pedidos').classList.add('hidden');
     document.getElementById('view-camino').classList.add('hidden');
     document.getElementById('view-historial').classList.add('hidden');
-    document.getElementById('view-bienvenida').classList.remove('hidden');
-  }
-  if(window.innerWidth<=768 && v!=='bienvenida'){
-    document.getElementById('logoMob').style.display='none';
   }
 }
 
@@ -271,8 +409,10 @@ onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
   render();
 });
 
-// iniciar en bienvenida luego pedidos
-if(window.innerWidth<=768) document.getElementById('logoMob').style.display='flex';
+if(window.innerWidth<=768){
+  document.getElementById('logoMob').style.display='flex';
+  document.getElementById('conexMob').style.display='flex';
+}
 </script>
 </body>
 </html>
