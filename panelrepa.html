@@ -1,1 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Repartidor - DoloYa</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{height:100vh;display:flex;background:#C00612;overflow:hidden}
+.sidebar{width:210px;background:white;display:flex;flex-direction:column;justify-content:space-between;padding:14px 10px;flex-shrink:0}
+.logo-top{text-align:center;padding:8px 0 18px}
+.logo-top b{font-size:28px;font-weight:900;color:#C00612;line-height:.9;display:flex;align-items:center;justify-content:center;gap:2px}
+.logo-top b i{font-style:italic}
+.logo-top small{display:block;font-size:20px;font-weight:900;color:#C00612;margin-top:-2px}
+.menu{display:flex;flex-direction:column;gap:6px}
+.item{padding:10px 12px;border-radius:10px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:#2b3440;cursor:pointer;position:relative}
+.item.active{background:#C00612;color:white}
+.item svg{width:20px;height:20px;flex-shrink:0}
+.badge-count{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:white;color:#C00612;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.item.active .badge-count{background:white;color:#C00612}
+.logo-bottom{border-top:1px solid #eef2f7;padding-top:12px;text-align:center;margin-top:10px}
+.logo-bottom b{font-size:16px;color:#C00612}
+.logo-bottom small{display:block;font-size:10px;color:#C00612;font-weight:700;line-height:1.1;margin-top:4px}
+.main{flex:1;position:relative;background:#C00612;display:flex;flex-direction:column}
+.topbar{height:58px;display:flex;align-items:center;justify-content:flex-end;gap:16px;padding:0 18px}
+.bell{position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.bell-count{position:absolute;top:-2px;right:-2px;background:white;color:#C00612;min-width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.bell.vibrar{animation:bellAnim .15s infinite}
+@keyframes bellAnim{0%{transform:rotate(-15deg) scale(1.2)}50%{transform:rotate(15deg) scale(1.3)}100%{transform:rotate(-15deg) scale(1.2)}}
+.btn-cerrar{background:white;border:none;border-radius:999px;padding:8px 16px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#C00612;cursor:pointer}
+.content{flex:1;overflow-y:auto;padding:10px 14px 90px}
+.welcome{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:white;padding:20px}
+.moto-icon{width:140px;height:100px;margin-bottom:14px}
+.welcome h1{font-size:42px;font-weight:900;line-height:1.05}
+.welcome p{font-size:18px;margin-top:10px;max-width:340px;line-height:1.3;font-weight:600;opacity:.95}
+.btn-sigue{margin-top:18px;background:white;border:none;border-radius:999px;padding:12px 26px;display:flex;align-items:center;gap:8px;color:#C00612;font-weight:800;font-size:14px;cursor:pointer}
+.card-pedido{background:white;border-radius:14px;padding:12px;margin-bottom:12px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.id-badge{background:#C00612;color:white;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800}
+.time{font-size:11px;color:#475569;display:flex;align-items:center;gap:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.lbl{font-size:9px;color:#64748b;font-weight:700}
+.val{font-size:11px;font-weight:600;color:#0f172a;line-height:1.3}
+.val small{font-weight:400;color:#64748b;display:block;font-size:10px}
+.btns{display:flex;gap:8px;margin-top:10px}
+.btn-rojo{background:#16a34a;color:white;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;flex:1;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
+.btn-gris{background:#334155;color:white;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;flex:1;cursor:pointer}
+.m-bottom-nav{display:none}
+@media(max-width:768px){
+  body{flex-direction:column}
+  .sidebar{display:none}
+  .m-bottom-nav{display:flex;position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #e5e7eb;padding:6px 4px;justify-content:space-around;z-index:20}
+  .m-nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:9px;font-weight:700;color:#64748b;cursor:pointer;position:relative;padding:4px 10px;border-radius:10px}
+  .m-nav-item.active{background:#C00612;color:white}
+  .m-nav-item .badge-count{position:absolute;top:-2px;right:2px}
+  .welcome h1{font-size:28px}
+  .welcome p{font-size:14px}
+  .topbar{justify-content:space-between}
+  .logo-mobile{display:flex;align-items:center;gap:6px;color:white;font-weight:900;font-size:18px}
+  .content{padding-bottom:80px}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
 
+<div class="sidebar">
+  <div>
+    <div class="logo-top"><b><i>D</i>DoloYa</b><small>DoloYa</small></div>
+    <div class="menu">
+      <div class="item active" data-v="pedidos" onclick="cambiar('pedidos')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm2 7V3.5L18.5 9H16a1 1 0 0 1-1-1zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
+        Pedidos <span class="badge-count" id="countPed">0</span>
+      </div>
+      <div class="item" data-v="camino" onclick="cambiar('camino')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/><path d="M5 17l2-6h8l2 6"/><path d="M10 11V7h2"/><circle cx="7" cy="7" r="2"/></svg>
+        En camino
+      </div>
+      <div class="item" data-v="historial" onclick="cambiar('historial')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+        Historial
+      </div>
+      <div class="item" data-v="perfil" onclick="cambiar('perfil')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4.5-7 8-7s8 3 8 7v1H4v-1z"/></svg>
+        Perfil
+      </div>
+      <div class="item" data-v="config" onclick="cambiar('config')">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 9 15a1.65 1.65 0 0 0-1-1.51V13a2 2 0 0 1 4 0v.49c.4.24.85.4 1.33.48z"/></svg>
+        Configuración
+      </div>
+    </div>
+  </div>
+  <div class="logo-bottom">
+    <svg width="46" height="28" viewBox="0 0 46 28" fill="#C00612"><path d="M2 18c2-6 8-10 18-12l2 2-2 2c-2 1-5 3-6 5l-3 6H2z"/></svg>
+    <b>DoloYa</b><small>Tu esfuerzo<br>nos mueve</small>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="logo-mobile" style="display:none" id="logoMob"><span style="font-style:italic">D</span>DoloYa</div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <div class="bell" id="bell">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 9H0s6-2 6-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="bell-count" id="bellCount">0</span>
+      </div>
+      <button class="btn-cerrar" onclick="cerrar()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C00612" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </div>
+
+  <div class="content" id="content">
+    <div id="view-bienvenida" class="welcome">
+      <div class="moto-icon">
+        <svg viewBox="0 0 120 80" fill="white"><path d="M20 52c0-10 6-18 18-20l8-2 4 8 6 2 8-18 10-6 6 6-6 8 6 2 8 8 6 14-8 4-6-4-8 2-6 4-14-2-10-2-12-2zM28 54a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm56 0a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM10 38h20v3H10zm4 6h16v2H14zm4 6h12v2H18z"/><rect x="18" y="18" width="14" height="18" rx="2" fill="white" stroke="#C00612" stroke-width="1"/><path d="M20 22h8v2H20z" fill="#C00612"/></svg>
+      </div>
+      <h1>¡Gracias por ser parte<br>de DoloYa!</h1>
+      <p>Tu compromiso y esfuerzo hacen que todo llegue más lejos.</p>
+      <button class="btn-sigue" onclick="cambiar('pedidos')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#C00612"><path d="M12 21s-6-4.5-9-8.5A5 5 0 0 1 12 7a5 5 0 0 1 9 5.5C18 16.5 12 21 12 21z"/></svg>
+        ¡Sigue rodando!
+      </button>
+    </div>
+
+    <div id="view-pedidos" class="hidden"></div>
+    <div id="view-camino" class="hidden"></div>
+    <div id="view-historial" class="hidden"></div>
+  </div>
+</div>
+
+<div class="m-bottom-nav">
+  <div class="m-nav-item active" data-v="pedidos" onclick="cambiar('pedidos')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/></svg>
+    Pedidos<span class="badge-count" id="mCountPed">0</span>
+  </div>
+  <div class="m-nav-item" data-v="camino" onclick="cambiar('camino')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17a2 2 0 1 0 0 4M17 17a2 2 0 1 0 0 4"/><path d="M5 17l2-6h8l2 6"/></svg>
+    En camino
+  </div>
+  <div class="m-nav-item" data-v="historial" onclick="cambiar('historial')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
+    Historial
+  </div>
+  <div class="m-nav-item" data-v="perfil" onclick="cambiar('perfil')">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="3"/><path d="M4 20c0-4 4-7 8-7s8 3 8 7"/></svg>
+    Perfil
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const configAdmin = {
+  apiKey: "AIzaSyDLKngPyi_SWAXEQwdrHO5h8L8OufulAR4",
+  authDomain: "doloya-confirmacion.firebaseapp.com",
+  projectId: "doloya-confirmacion",
+  storageBucket: "doloya-confirmacion.firebasestorage.app",
+  messagingSenderId: "832228761099",
+  appId: "1:832228761099:web:ddd4b6a0ee0d7f0494b10e"
+};
+const appAdmin = initializeApp(configAdmin, "admin");
+const dbAdmin = getFirestore(appAdmin);
+
+let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
+let pedidosAll = [];
+let primer = true;
+let ultimoTotal = 0;
+
+function sonar(){
+  const bell = document.getElementById('bell');
+  bell.classList.add('vibrar');
+  setTimeout(()=>bell.classList.remove('vibrar'), 3000);
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.frequency.value = 980; g.gain.setValueAtTime(0.9, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.6);
+    o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.6);
+  }catch{}
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance("Nuevo pedido DoloYa"); u.lang='es-MX'; speechSynthesis.speak(u);}catch{}
+}
+
+function render(){
+  const mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose") );
+  const nuevos = mios.filter(p=>p.estado==='enviado_a_repartidor');
+  const camino = mios.filter(p=>['recogido','en_camino'].includes(p.estado));
+  const historial = mios.filter(p=>['finalizado','entregado'].includes(p.estado));
+
+  document.getElementById('countPed').textContent = nuevos.length;
+  document.getElementById('mCountPed').textContent = nuevos.length;
+  document.getElementById('bellCount').textContent = nuevos.length;
+
+  if(!primer && nuevos.length>ultimoTotal) sonar();
+  ultimoTotal = nuevos.length; primer=false;
+
+  const viewPed = document.getElementById('view-pedidos');
+  if(nuevos.length===0){
+    viewPed.innerHTML='<div style="color:white;text-align:center;padding:40px;font-weight:700">No tienes pedidos nuevos<br><small style="font-weight:400">Esperando que admin te asigne</small></div>';
+  }else{
+    viewPed.innerHTML = nuevos.map(p=>card(p,true)).join('');
+  }
+
+  const viewCam = document.getElementById('view-camino');
+  viewCam.innerHTML = camino.length? camino.map(p=>card(p,false,true)).join('') : '<div style="color:white;text-align:center;padding:40px">Sin pedidos en camino</div>';
+
+  const viewHis = document.getElementById('view-historial');
+  viewHis.innerHTML = historial.length? historial.map(p=>card(p,false,false,true)).join('') : '<div style="color:white;text-align:center;padding:40px">Historial vacío</div>';
+}
+
+function card(p, showRecoger=false, showEntregar=false, isHist=false){
+  const id = p.codigo||p.id.slice(0,4).toUpperCase();
+  const cli = p.nombre||p.detalles?.nombre||'Cliente';
+  const tel = p.telefono||p.detalles?.telefono||'';
+  const rest = p.restaurante?.nombre||'Restaurante';
+  const dirR = p.restaurante?.direccion||'';
+  const dirE = p.detalles?.direccion||'';
+  const total = p.totales?.total||0;
+  return `
+  <div class="card-pedido">
+    <div class="card-top"><span class="id-badge">#${id}</span><span class="time"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg> ${p.estado}</span></div>
+    <div class="grid">
+      <div><div class="lbl">CLIENTE</div><div class="val">${cli}<small>${tel}</small></div></div>
+      <div><div class="lbl">RESTAURANTE</div><div class="val">${rest}<small>${dirR}</small></div></div>
+      <div><div class="lbl">RECOGER EN</div><div class="val"><small>${dirR}</small></div></div>
+      <div><div class="lbl">ENTREGAR EN</div><div class="val"><small>${dirE}</small></div></div>
+    </div>
+    <div class="val" style="font-size:13px;font-weight:800;color:#C00612">Total: $${total} MXN</div>
+    <div class="btns">
+      ${showRecoger?`<button class="btn-rojo" onclick="accion('${p.id}','recogido')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Recogido</button>`:''}
+      ${showEntregar?`<button class="btn-rojo" style="background:#0ea5e9" onclick="accion('${p.id}','en_camino')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M5.5 17.5l2-6h8l2 6"/></svg> En camino</button><button class="btn-gris" onclick="accion('${p.id}','finalizado')">Finalizar</button>`:''}
+      ${isHist?`<div style="font-size:11px;color:#16a34a;font-weight:800;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Entregado</div>`:''}
+    </div>
+  </div>`;
+}
+
+window.cambiar = (v)=>{
+  document.querySelectorAll('.item').forEach(i=>i.classList.toggle('active', i.dataset.v===v));
+  document.querySelectorAll('.m-nav-item').forEach(i=>i.classList.toggle('active', i.dataset.v===v));
+  document.getElementById('view-bienvenida').classList.toggle('hidden', v!=='bienvenida');
+  document.getElementById('view-pedidos').classList.toggle('hidden', v!=='pedidos');
+  document.getElementById('view-camino').classList.toggle('hidden', v!=='camino');
+  document.getElementById('view-historial').classList.toggle('hidden', v!=='historial');
+  if(v==='pedidos' || v==='camino' || v==='historial'){
+    document.getElementById('view-bienvenida').classList.add('hidden');
+  }
+  if(v==='perfil' || v==='config'){
+    document.getElementById('view-pedidos').classList.add('hidden');
+    document.getElementById('view-camino').classList.add('hidden');
+    document.getElementById('view-historial').classList.add('hidden');
+    document.getElementById('view-bienvenida').classList.remove('hidden');
+  }
+  if(window.innerWidth<=768 && v!=='bienvenida'){
+    document.getElementById('logoMob').style.display='none';
+  }
+}
+
+window.accion = async (id, nuevoEstado)=>{
+  try{ await updateDoc(doc(dbAdmin,"pedidos_admin",id),{estado:nuevoEstado}); }catch(e){ alert(e.message); }
+}
+window.cerrar = ()=>{
+  localStorage.removeItem("repartidor_sesion");
+  window.location.href="index.html";
+}
+
+onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
+  pedidosAll = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  render();
+});
+
+// iniciar en bienvenida luego pedidos
+if(window.innerWidth<=768) document.getElementById('logoMob').style.display='flex';
+</script>
+</body>
+</html>
