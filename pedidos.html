@@ -61,22 +61,24 @@ body{background:#f6f8fb;min-height:100vh}
 .btn-bottom.gris-bloqueado{background:#e5e7eb;color:#9ca3af;border-color:#e5e7eb;pointer-events:none;opacity:.7}
 .btn-bottom.gris-hecho{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0;pointer-events:none}
 .btn-bottom.cancelado-rojo{background:#E30613;color:white;border-color:#E30613;box-shadow:0 3px 10px rgba(227,6,19,.25)}
-/* OVERLAY CANCELAR */
-.card-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.94);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:20;border-radius:14px;padding:12px}
+/* OVERLAY CANCELAR - 2 COLUMNAS ORGANIZADO */
+.card-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.96);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:20;border-radius:14px;padding:16px}
 .card-overlay.open{display:flex}
-.overlay-cancel{width:420px;max-width:95%;background:white;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.15);padding:16px;text-align:left}
-.cancel-title{font-size:14px;font-weight:800;color:#111;margin-bottom:4px}
-.cancel-sub{font-size:11px;color:#64748b;margin-bottom:12px}
-.cancel-opts{display:flex;flex-direction:column;gap:8px}
-.cancel-opt{border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:600;color:#334155;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s}
-.cancel-opt:hover{border-color:#E30613;background:#fff1f2}
-.cancel-opt.active{border-color:#E30613;background:#fff1f2;color:#E30613}
-.cancel-opt input{accent-color:#E30613}
-.cancel-text{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:12px;min-height:80px;resize:none;display:none;margin-top:8px}
+.overlay-cancel{width:560px;max-width:96%;background:white;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:20px;text-align:left}
+.cancel-title{font-size:15px;font-weight:800;color:#111;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.cancel-sub{font-size:11.5px;color:#64748b;margin-bottom:14px}
+.cancel-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.cancel-opts{grid-template-columns:1fr}}
+.cancel-opt{border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 12px;font-size:12px;font-weight:600;color:#334155;display:flex;align-items:center;gap:9px;cursor:pointer;transition:all .15s;background:#fafafa;min-height:46px}
+.cancel-opt:hover{border-color:#E30613;background:#fff1f2;transform:translateY(-1px)}
+.cancel-opt.active{border-color:#E30613;background:#fff1f2;color:#E30613;box-shadow:0 2px 8px rgba(227,6,19,.15)}
+.cancel-opt input{accent-color:#E30613;width:16px;height:16px;flex-shrink:0}
+.cancel-text{width:100%;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px;font-size:12px;min-height:90px;resize:none;display:none;margin-top:12px;grid-column:1 / -1}
 .cancel-text.show{display:block}
-.cancel-actions{display:flex;gap:10px;margin-top:14px}
-.btn-cancel-no{flex:1;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:12px;font-weight:700;color:#475569;cursor:pointer}
-.btn-cancel-si{flex:1;background:#E30613;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:800;color:white;cursor:pointer;box-shadow:0 3px 10px rgba(227,6,19,.3)}
+.cancel-text:focus{border-color:#E30613;outline:none}
+.cancel-actions{display:flex;gap:10px;margin-top:16px}
+.btn-cancel-no{flex:1;background:white;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px;font-size:12px;font-weight:700;color:#475569;cursor:pointer}
+.btn-cancel-si{flex:1;background:#E30613;border:none;border-radius:10px;padding:11px;font-size:12px;font-weight:800;color:white;cursor:pointer;box-shadow:0 4px 12px rgba(227,6,19,.3)}
 .btn-cancel-si:disabled{background:#94a3b8;box-shadow:none;cursor:not-allowed}
 @media(max-width:980px){.card{grid-template-columns:1fr 1fr;gap:14px}.card-top{padding-right:0}.top-right{position:relative;right:auto;top:auto;align-items:flex-start;margin-top:6px}.card-bottom{flex-wrap:wrap}}
 @media(max-width:640px){.card{grid-template-columns:1fr}.card-top{flex-direction:column;gap:8px}.card-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn-bottom.cancelado-rojo{grid-column:1 / -1}}
@@ -277,23 +279,22 @@ function render(){
         <button class="btn-bottom cancelado-rojo" onclick="abrirCancelar('${p.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancelado</button>
       </div>
 
-      <!-- OVERLAY CANCELAR ENCIMA DE LA MISMA TARJETA -->
       <div class="card-overlay" id="overlay-cancel-${p.id}">
         <div class="overlay-cancel">
-          <div class="cancel-title">¿Por qué cancelas este pedido?</div>
-          <div class="cancel-sub">Pedido #${codigoReal} - Selecciona el motivo</div>
+          <div class="cancel-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E30613" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ¿Por qué cancelas este pedido?</div>
+          <div class="cancel-sub">Pedido #${codigoReal} - Selecciona el motivo de cancelación</div>
           <div class="cancel-opts" id="opts-${p.id}">
             <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Cliente no respondió')"><input type="radio" name="motivo-${p.id}" value="Cliente no respondió"> Cliente no respondió</label>
             <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Ubicación no existe')"><input type="radio" name="motivo-${p.id}" value="Ubicación no existe"> Ubicación no existe</label>
             <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Estoy llamando no contestan')"><input type="radio" name="motivo-${p.id}" value="Estoy llamando no contestan"> Estoy llamando no contestan</label>
             <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','No sale nadie')"><input type="radio" name="motivo-${p.id}" value="No sale nadie"> No sale nadie</label>
-            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Me manifiestan que aquí no pidieron nada')"><input type="radio" name="motivo-${p.id}" value="Me manifiestan que aquí no pidieron nada"> Me manifiestan que aquí no pidieron nada</label>
-            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Otro')"><input type="radio" name="motivo-${p.id}" value="Otro"> Otro</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Me manifiestan que aquí no pidieron nada')"><input type="radio" name="motivo-${p.id}" value="Me manifiestan que aquí no pidieron nada"> Aquí no pidieron nada</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Otro')"><input type="radio" name="motivo-${p.id}" value="Otro"> Otro motivo</label>
+            <textarea class="cancel-text" id="texto-${p.id}" placeholder="Explica por qué cancelas el servicio..."></textarea>
           </div>
-          <textarea class="cancel-text" id="texto-${p.id}" placeholder="Explica por qué cancelas el servicio..."></textarea>
           <div class="cancel-actions">
-            <button class="btn-cancel-no" onclick="cerrarCancelar('${p.id}')">No</button>
-            <button class="btn-cancel-si" id="btnSi-${p.id}" disabled onclick="confirmarCancelar('${p.id}')">Cancelar pedido</button>
+            <button class="btn-cancel-no" onclick="cerrarCancelar('${p.id}')">No, volver</button>
+            <button class="btn-cancel-si" id="btnSi-${p.id}" disabled onclick="confirmarCancelar('${p.id}')">Sí, cancelar pedido</button>
           </div>
         </div>
       </div>
@@ -304,12 +305,9 @@ function render(){
 
 window.filtrar = (f)=>{ filtro=f; document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.f===f)); render(); }
 
-window.abrirCancelar = (id)=>{
-  document.getElementById('overlay-cancel-'+id)?.classList.add('open');
-}
+window.abrirCancelar = (id)=>{ document.getElementById('overlay-cancel-'+id)?.classList.add('open'); }
 window.cerrarCancelar = (id)=>{
   document.getElementById('overlay-cancel-'+id)?.classList.remove('open');
-  // reset
   document.querySelectorAll(`input[name="motivo-${id}"]`).forEach(r=>r.checked=false);
   document.querySelectorAll(`#opts-${id} .cancel-opt`).forEach(o=>o.classList.remove('active'));
   const txt=document.getElementById('texto-'+id); if(txt){ txt.value=''; txt.classList.remove('show'); }
