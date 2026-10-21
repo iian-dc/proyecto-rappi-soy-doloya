@@ -61,24 +61,24 @@ body{background:#f6f8fb;min-height:100vh}
 .btn-bottom.gris-bloqueado{background:#e5e7eb;color:#9ca3af;border-color:#e5e7eb;pointer-events:none;opacity:.7}
 .btn-bottom.gris-hecho{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0;pointer-events:none}
 .btn-bottom.cancelado-rojo{background:#E30613;color:white;border-color:#E30613;box-shadow:0 3px 10px rgba(227,6,19,.25)}
-/* OVERLAY CANCELAR - 2 COLUMNAS ORGANIZADO */
-.card-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.96);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:20;border-radius:14px;padding:16px}
+/* OVERLAY CANCELAR - COMPACTO PARA QUE QUEPA EN TARJETA */
+.card-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:20;border-radius:14px;padding:10px}
 .card-overlay.open{display:flex}
-.overlay-cancel{width:560px;max-width:96%;background:white;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.18);padding:20px;text-align:left}
-.cancel-title{font-size:15px;font-weight:800;color:#111;margin-bottom:4px;display:flex;align-items:center;gap:8px}
-.cancel-sub{font-size:11.5px;color:#64748b;margin-bottom:14px}
-.cancel-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.overlay-cancel{width:460px;max-width:95%;background:white;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.16);padding:12px 14px;text-align:left}
+.cancel-title{font-size:12.5px;font-weight:800;color:#111;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.cancel-sub{font-size:10px;color:#64748b;margin-bottom:10px}
+.cancel-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 @media(max-width:600px){.cancel-opts{grid-template-columns:1fr}}
-.cancel-opt{border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 12px;font-size:12px;font-weight:600;color:#334155;display:flex;align-items:center;gap:9px;cursor:pointer;transition:all .15s;background:#fafafa;min-height:46px}
-.cancel-opt:hover{border-color:#E30613;background:#fff1f2;transform:translateY(-1px)}
-.cancel-opt.active{border-color:#E30613;background:#fff1f2;color:#E30613;box-shadow:0 2px 8px rgba(227,6,19,.15)}
-.cancel-opt input{accent-color:#E30613;width:16px;height:16px;flex-shrink:0}
-.cancel-text{width:100%;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px;font-size:12px;min-height:90px;resize:none;display:none;margin-top:12px;grid-column:1 / -1}
+.cancel-opt{border:1px solid #e2e8f0;border-radius:8px;padding:7px 9px;font-size:10.5px;font-weight:600;color:#334155;display:flex;align-items:center;gap:6px;cursor:pointer;transition:all .12s;background:#fafafa;min-height:32px;line-height:1.2}
+.cancel-opt:hover{border-color:#E30613;background:#fff1f2}
+.cancel-opt.active{border-color:#E30613;background:#fff1f2;color:#E30613}
+.cancel-opt input{accent-color:#E30613;width:12px;height:12px;flex-shrink:0}
+.cancel-text{width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:10.5px;min-height:58px;resize:none;display:none;margin-top:8px;grid-column:1 / -1}
 .cancel-text.show{display:block}
 .cancel-text:focus{border-color:#E30613;outline:none}
-.cancel-actions{display:flex;gap:10px;margin-top:16px}
-.btn-cancel-no{flex:1;background:white;border:1.5px solid #e2e8f0;border-radius:10px;padding:11px;font-size:12px;font-weight:700;color:#475569;cursor:pointer}
-.btn-cancel-si{flex:1;background:#E30613;border:none;border-radius:10px;padding:11px;font-size:12px;font-weight:800;color:white;cursor:pointer;box-shadow:0 4px 12px rgba(227,6,19,.3)}
+.cancel-actions{display:flex;gap:8px;margin-top:10px}
+.btn-cancel-no{flex:1;background:white;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:11px;font-weight:700;color:#475569;cursor:pointer}
+.btn-cancel-si{flex:1;background:#E30613;border:none;border-radius:8px;padding:8px;font-size:11px;font-weight:800;color:white;cursor:pointer;box-shadow:0 3px 8px rgba(227,6,19,.25)}
 .btn-cancel-si:disabled{background:#94a3b8;box-shadow:none;cursor:not-allowed}
 @media(max-width:980px){.card{grid-template-columns:1fr 1fr;gap:14px}.card-top{padding-right:0}.top-right{position:relative;right:auto;top:auto;align-items:flex-start;margin-top:6px}.card-bottom{flex-wrap:wrap}}
 @media(max-width:640px){.card{grid-template-columns:1fr}.card-top{flex-direction:column;gap:8px}.card-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn-bottom.cancelado-rojo{grid-column:1 / -1}}
@@ -281,20 +281,20 @@ function render(){
 
       <div class="card-overlay" id="overlay-cancel-${p.id}">
         <div class="overlay-cancel">
-          <div class="cancel-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E30613" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ¿Por qué cancelas este pedido?</div>
-          <div class="cancel-sub">Pedido #${codigoReal} - Selecciona el motivo de cancelación</div>
+          <div class="cancel-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E30613" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ¿Por qué cancelas?</div>
+          <div class="cancel-sub">Pedido #${codigoReal} - Elige motivo</div>
           <div class="cancel-opts" id="opts-${p.id}">
             <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Cliente no respondió')"><input type="radio" name="motivo-${p.id}" value="Cliente no respondió"> Cliente no respondió</label>
             <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Ubicación no existe')"><input type="radio" name="motivo-${p.id}" value="Ubicación no existe"> Ubicación no existe</label>
-            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Estoy llamando no contestan')"><input type="radio" name="motivo-${p.id}" value="Estoy llamando no contestan"> Estoy llamando no contestan</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Estoy llamando no contestan')"><input type="radio" name="motivo-${p.id}" value="Estoy llamando no contestan"> No contestan</label>
             <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','No sale nadie')"><input type="radio" name="motivo-${p.id}" value="No sale nadie"> No sale nadie</label>
-            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Me manifiestan que aquí no pidieron nada')"><input type="radio" name="motivo-${p.id}" value="Me manifiestan que aquí no pidieron nada"> Aquí no pidieron nada</label>
-            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Otro')"><input type="radio" name="motivo-${p.id}" value="Otro"> Otro motivo</label>
-            <textarea class="cancel-text" id="texto-${p.id}" placeholder="Explica por qué cancelas el servicio..."></textarea>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Me manifiestan que aquí no pidieron nada')"><input type="radio" name="motivo-${p.id}" value="Me manifiestan que aquí no pidieron nada"> No pidieron nada</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Otro')"><input type="radio" name="motivo-${p.id}" value="Otro"> Otro</label>
+            <textarea class="cancel-text" id="texto-${p.id}" placeholder="Explica por qué cancelas..."></textarea>
           </div>
           <div class="cancel-actions">
-            <button class="btn-cancel-no" onclick="cerrarCancelar('${p.id}')">No, volver</button>
-            <button class="btn-cancel-si" id="btnSi-${p.id}" disabled onclick="confirmarCancelar('${p.id}')">Sí, cancelar pedido</button>
+            <button class="btn-cancel-no" onclick="cerrarCancelar('${p.id}')">No</button>
+            <button class="btn-cancel-si" id="btnSi-${p.id}" disabled onclick="confirmarCancelar('${p.id}')">Cancelar</button>
           </div>
         </div>
       </div>
