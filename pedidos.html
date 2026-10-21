@@ -76,7 +76,8 @@ body{background:#f6f8fb;min-height:100vh}
 </div>
 
 <div class="tabs">
-  <div class="tab active" data-f="activo" onclick="filtrar('activo')">Activo <span class="num" id="c-activo">0</span></div>
+  <div class="tab active" data-f="todos" onclick="filtrar('todos')">Todos <span class="num" id="c-todos">0</span></div>
+  <div class="tab" data-f="activo" onclick="filtrar('activo')">Activo <span class="num" id="c-activo">0</span></div>
   <div class="tab" data-f="ir_a_recoger" onclick="filtrar('ir_a_recoger')">Ir a recoger <span class="num" id="c-ir_a_recoger">0</span></div>
   <div class="tab" data-f="recogido" onclick="filtrar('recogido')">Recogido <span class="num" id="c-recogido">0</span></div>
   <div class="tab" data-f="ir_a_entregar" onclick="filtrar('ir_a_entregar')">Ir a entregar <span class="num" id="c-ir_a_entregar">0</span></div>
@@ -102,7 +103,7 @@ const app = initializeApp(configAdmin);
 const db = getFirestore(app);
 
 let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
-let filtro = "activo";
+let filtro = "todos";
 let pedidos = [];
 let ultimoCount = 0;
 let primero = true;
@@ -149,14 +150,13 @@ function mapEstado(p){
   return 'activo';
 }
 
-// === LOGICA PASO A PASO COMO PEDISTE ===
 function getPaso(estado){
   const e=(estado||'').toLowerCase();
-  if(['enviado_a_repartidor','activo','nuevo','pendiente','aceptado'].includes(e)) return 0; // toca ir a recoger
-  if(e==='ir_a_recoger') return 1; // ya hizo ir a recoger, toca lo tengo
-  if(e==='recogido') return 2; // toca ir a entregar
-  if(['en_camino','ir_a_entregar'].includes(e)) return 3; // toca entregado
-  if(['finalizado','entregado'].includes(e)) return 4; // todo hecho
+  if(['enviado_a_repartidor','activo','nuevo','pendiente','aceptado'].includes(e)) return 0;
+  if(e==='ir_a_recoger') return 1;
+  if(e==='recogido') return 2;
+  if(['en_camino','ir_a_entregar'].includes(e)) return 3;
+  if(['finalizado','entregado'].includes(e)) return 4;
   if(e==='cancelado') return 5;
   return 0;
 }
@@ -168,9 +168,10 @@ function render(){
     return esDeJose && yaFueEnviado;
   });
   
-  const counts = {activo:0, ir_a_recoger:0, recogido:0, ir_a_entregar:0, entregado:0, cancelado:0};
+  const counts = {todos:mios.length, activo:0, ir_a_recoger:0, recogido:0, ir_a_entregar:0, entregado:0, cancelado:0};
   mios.forEach(p=>{ const m=mapEstado(p); if(counts[m]!==undefined) counts[m]++; });
   
+  document.getElementById('c-todos').textContent=counts.todos;
   document.getElementById('c-activo').textContent=counts.activo;
   document.getElementById('c-ir_a_recoger').textContent=counts.ir_a_recoger;
   document.getElementById('c-recogido').textContent=counts.recogido;
@@ -183,7 +184,8 @@ function render(){
   ultimoCount = counts.activo+counts.ir_a_recoger;
   primero=false;
 
-  const filtrados = mios.filter(p=> mapEstado(p)===filtro);
+  // === TODOS MUESTRA TODO, NO SE ESCONDE ===
+  const filtrados = filtro==='todos' ? mios : mios.filter(p=> mapEstado(p)===filtro);
   const lista = document.getElementById('lista');
   
   if(filtrados.length===0){
@@ -218,16 +220,11 @@ function render(){
     const tiempo = calcularTiempoReal(tsSec);
 
     const paso = getPaso(p.estado);
-
-    // Clases paso a paso
     let clsRecoger = paso===0 ? 'verde-activo' : paso>0 ? 'gris-hecho' : 'gris-bloqueado';
     let clsTengo = paso===1 ? 'verde-activo' : paso>1 ? 'gris-hecho' : 'gris-bloqueado';
     let clsEntregar = paso===2 ? 'verde-activo' : paso>2 ? 'gris-hecho' : 'gris-bloqueado';
     let clsEntregado = paso===3 ? 'verde-activo' : paso>3 ? 'gris-hecho' : 'gris-bloqueado';
-
-    if(paso===4){ // finalizado todo en gris hecho
-      clsRecoger='gris-hecho'; clsTengo='gris-hecho'; clsEntregar='gris-hecho'; clsEntregado='gris-hecho';
-    }
+    if(paso===4){ clsRecoger='gris-hecho'; clsTengo='gris-hecho'; clsEntregar='gris-hecho'; clsEntregado='gris-hecho'; }
 
     return `
     <div class="card">
