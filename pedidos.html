@@ -25,7 +25,7 @@ body{background:#f6f8fb;min-height:100vh}
 .tab .num{background:#f1f5f9;color:#334155;min-width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
 .tab.active .num{background:white;color:#E30613}
 .container{padding:0 18px 30px}
-.card{background:white;border-radius:14px;border:1px solid #e8edf5;padding:12px 14px;display:grid;grid-template-columns:200px 210px 170px 150px 190px;gap:10px;align-items:start;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.04);position:relative}
+.card{background:white;border-radius:14px;border:1px solid #e8edf5;padding:12px 14px;display:grid;grid-template-columns:200px 210px 170px 150px 190px;gap:10px;align-items:start;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.04);position:relative;overflow:hidden}
 .card-top{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;padding-right:170px}
 .badge-id{background:#E30613;color:white;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:800}
 .top-right{position:absolute;right:14px;top:12px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;z-index:2}
@@ -61,6 +61,23 @@ body{background:#f6f8fb;min-height:100vh}
 .btn-bottom.gris-bloqueado{background:#e5e7eb;color:#9ca3af;border-color:#e5e7eb;pointer-events:none;opacity:.7}
 .btn-bottom.gris-hecho{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0;pointer-events:none}
 .btn-bottom.cancelado-rojo{background:#E30613;color:white;border-color:#E30613;box-shadow:0 3px 10px rgba(227,6,19,.25)}
+/* OVERLAY CANCELAR */
+.card-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.94);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:20;border-radius:14px;padding:12px}
+.card-overlay.open{display:flex}
+.overlay-cancel{width:420px;max-width:95%;background:white;border:1px solid #e5e7eb;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.15);padding:16px;text-align:left}
+.cancel-title{font-size:14px;font-weight:800;color:#111;margin-bottom:4px}
+.cancel-sub{font-size:11px;color:#64748b;margin-bottom:12px}
+.cancel-opts{display:flex;flex-direction:column;gap:8px}
+.cancel-opt{border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;font-size:12px;font-weight:600;color:#334155;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s}
+.cancel-opt:hover{border-color:#E30613;background:#fff1f2}
+.cancel-opt.active{border-color:#E30613;background:#fff1f2;color:#E30613}
+.cancel-opt input{accent-color:#E30613}
+.cancel-text{width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:12px;min-height:80px;resize:none;display:none;margin-top:8px}
+.cancel-text.show{display:block}
+.cancel-actions{display:flex;gap:10px;margin-top:14px}
+.btn-cancel-no{flex:1;background:white;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:12px;font-weight:700;color:#475569;cursor:pointer}
+.btn-cancel-si{flex:1;background:#E30613;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:800;color:white;cursor:pointer;box-shadow:0 3px 10px rgba(227,6,19,.3)}
+.btn-cancel-si:disabled{background:#94a3b8;box-shadow:none;cursor:not-allowed}
 @media(max-width:980px){.card{grid-template-columns:1fr 1fr;gap:14px}.card-top{padding-right:0}.top-right{position:relative;right:auto;top:auto;align-items:flex-start;margin-top:6px}.card-bottom{flex-wrap:wrap}}
 @media(max-width:640px){.card{grid-template-columns:1fr}.card-top{flex-direction:column;gap:8px}.card-bottom{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn-bottom.cancelado-rojo{grid-column:1 / -1}}
 </style>
@@ -168,25 +185,21 @@ function render(){
     return esDeJose && yaFueEnviado;
   });
 
-  // === FILTRO PARA REPARTIDOR: LOS FINALIZADOS NO APARECEN MÁS EN SU PANEL ===
   const mios = miosTodos.filter(p=>{
     const e=(p.estado||'').toLowerCase();
     return !['finalizado','entregado'].includes(e);
   });
   
   const countsTodos = {todos:mios.length, activo:0, ir_a_recoger:0, recogido:0, ir_a_entregar:0, entregado:0, cancelado:0};
-  // Para conteo usamos los visibles (sin finalizados) para que no se queden números en entregado
   mios.forEach(p=>{ const m=mapEstado(p); if(countsTodos[m]!==undefined) countsTodos[m]++; });
-  // Pero bell solo con activos
   const bellTotal = countsTodos.activo + countsTodos.ir_a_recoger;
 
-  // Para que el contador de Todos incluya solo visibles (ya entregados no cuentan)
   document.getElementById('c-todos').textContent=countsTodos.todos;
   document.getElementById('c-activo').textContent=countsTodos.activo;
   document.getElementById('c-ir_a_recoger').textContent=countsTodos.ir_a_recoger;
   document.getElementById('c-recogido').textContent=countsTodos.recogido;
   document.getElementById('c-ir_a_entregar').textContent=countsTodos.ir_a_entregar;
-  document.getElementById('c-entregado').textContent=0; // ya no aparece en repartidor
+  document.getElementById('c-entregado').textContent=0;
   document.getElementById('c-cancelado').textContent=countsTodos.cancelado;
   document.getElementById('bellCount').textContent=bellTotal;
 
@@ -235,7 +248,7 @@ function render(){
     let clsEntregado = paso===3 ? 'verde-activo' : paso>3 ? 'gris-hecho' : 'gris-bloqueado';
 
     return `
-    <div class="card">
+    <div class="card" id="card-${p.id}">
       <div class="card-top">
         <span class="badge-id">#${codigoReal}</span>
         <div class="top-right">
@@ -261,13 +274,95 @@ function render(){
         <button class="btn-bottom ${clsTengo}" onclick="accion('${p.id}','recogido')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Lo tengo</button>
         <button class="btn-bottom ${clsEntregar}" onclick="accion('${p.id}','ir_a_entregar')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M5 17h13l2-7H8"/></svg> Ir a entregar</button>
         <button class="btn-bottom ${clsEntregado}" onclick="accion('${p.id}','entregado')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Entregado</button>
-        <button class="btn-bottom cancelado-rojo" onclick="accion('${p.id}','cancelado')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancelado</button>
+        <button class="btn-bottom cancelado-rojo" onclick="abrirCancelar('${p.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancelado</button>
       </div>
+
+      <!-- OVERLAY CANCELAR ENCIMA DE LA MISMA TARJETA -->
+      <div class="card-overlay" id="overlay-cancel-${p.id}">
+        <div class="overlay-cancel">
+          <div class="cancel-title">¿Por qué cancelas este pedido?</div>
+          <div class="cancel-sub">Pedido #${codigoReal} - Selecciona el motivo</div>
+          <div class="cancel-opts" id="opts-${p.id}">
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Cliente no respondió')"><input type="radio" name="motivo-${p.id}" value="Cliente no respondió"> Cliente no respondió</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Ubicación no existe')"><input type="radio" name="motivo-${p.id}" value="Ubicación no existe"> Ubicación no existe</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Estoy llamando no contestan')"><input type="radio" name="motivo-${p.id}" value="Estoy llamando no contestan"> Estoy llamando no contestan</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','No sale nadie')"><input type="radio" name="motivo-${p.id}" value="No sale nadie"> No sale nadie</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Me manifiestan que aquí no pidieron nada')"><input type="radio" name="motivo-${p.id}" value="Me manifiestan que aquí no pidieron nada"> Me manifiestan que aquí no pidieron nada</label>
+            <label class="cancel-opt" onclick="seleccionarMotivo('${p.id}','Otro')"><input type="radio" name="motivo-${p.id}" value="Otro"> Otro</label>
+          </div>
+          <textarea class="cancel-text" id="texto-${p.id}" placeholder="Explica por qué cancelas el servicio..."></textarea>
+          <div class="cancel-actions">
+            <button class="btn-cancel-no" onclick="cerrarCancelar('${p.id}')">No</button>
+            <button class="btn-cancel-si" id="btnSi-${p.id}" disabled onclick="confirmarCancelar('${p.id}')">Cancelar pedido</button>
+          </div>
+        </div>
+      </div>
+
     </div>`;
   }).join('');
 }
 
 window.filtrar = (f)=>{ filtro=f; document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.f===f)); render(); }
+
+window.abrirCancelar = (id)=>{
+  document.getElementById('overlay-cancel-'+id)?.classList.add('open');
+}
+window.cerrarCancelar = (id)=>{
+  document.getElementById('overlay-cancel-'+id)?.classList.remove('open');
+  // reset
+  document.querySelectorAll(`input[name="motivo-${id}"]`).forEach(r=>r.checked=false);
+  document.querySelectorAll(`#opts-${id} .cancel-opt`).forEach(o=>o.classList.remove('active'));
+  const txt=document.getElementById('texto-'+id); if(txt){ txt.value=''; txt.classList.remove('show'); }
+  const btn=document.getElementById('btnSi-'+id); if(btn) btn.disabled=true;
+}
+window.seleccionarMotivo = (id, motivo)=>{
+  document.querySelectorAll(`#opts-${id} .cancel-opt`).forEach(o=>o.classList.remove('active'));
+  const radio = document.querySelector(`input[name="motivo-${id}"][value="${motivo}"]`);
+  if(radio){ radio.checked=true; radio.parentElement.classList.add('active'); }
+  const txt=document.getElementById('texto-'+id);
+  const btn=document.getElementById('btnSi-'+id);
+  if(motivo==='Otro'){
+    txt.classList.add('show');
+    txt.focus();
+    btn.disabled = txt.value.trim().length < 3;
+    txt.oninput = ()=>{ btn.disabled = txt.value.trim().length < 3; };
+  }else{
+    txt.classList.remove('show');
+    txt.value='';
+    btn.disabled=false;
+  }
+}
+window.confirmarCancelar = async (id)=>{
+  const sel = document.querySelector(`input[name="motivo-${id}"]:checked`);
+  if(!sel){ alert('Selecciona un motivo'); return; }
+  let motivo = sel.value;
+  const txt=document.getElementById('texto-'+id);
+  let detalle = '';
+  if(motivo==='Otro'){
+    detalle = txt.value.trim();
+    if(detalle.length<3){ alert('Explica el motivo'); return; }
+  }
+  try{
+    await updateDoc(doc(db,"pedidos_admin",id),{
+      estado:'cancelado',
+      estadoRepartidor:'cancelado',
+      motivoCancelacion: motivo,
+      detalleCancelacion: detalle,
+      canceladoPor: sesion.usuario,
+      canceladoPorNombre: sesion.nombre,
+      canceladoEn: new Date().toISOString(),
+      actualizadoEn: new Date().toISOString()
+    });
+    try{
+      const otro = doc(db,"pedidos",id);
+      const snap = await getDoc(otro);
+      if(snap.exists()){
+        await updateDoc(otro,{estado:'cancelado', motivoCancelacion:motivo, detalleCancelacion:detalle});
+      }
+    }catch{}
+    cerrarCancelar(id);
+  }catch(e){ alert(e.message); }
+}
 
 window.accion = async (id, estado)=>{
   let real = estado;
