@@ -61,7 +61,6 @@ body{background:#f6f8fb;min-height:100vh}
 .btn-bottom.gris-bloqueado{background:#e5e7eb;color:#9ca3af;border-color:#e5e7eb;pointer-events:none;opacity:.7}
 .btn-bottom.gris-hecho{background:#f1f5f9;color:#94a3b8;border-color:#e2e8f0;pointer-events:none}
 .btn-bottom.cancelado-rojo{background:#E30613;color:white;border-color:#E30613;box-shadow:0 3px 10px rgba(227,6,19,.25)}
-/* OVERLAY CANCELAR - COMPACTO PARA QUE QUEPA EN TARJETA */
 .card-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.97);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:20;border-radius:14px;padding:10px}
 .card-overlay.open{display:flex}
 .overlay-cancel{width:460px;max-width:95%;background:white;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.16);padding:12px 14px;text-align:left}
@@ -108,8 +107,9 @@ body{background:#f6f8fb;min-height:100vh}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
+// BASE 1 - ADMIN DONDE ESTA pedidos_admin
 const configAdmin = {
   apiKey: "AIzaSyDLKngPyi_SWAXEQwdrHO5h8L8OufulAR4",
   authDomain: "doloya-confirmacion.firebaseapp.com",
@@ -120,6 +120,19 @@ const configAdmin = {
 };
 const app = initializeApp(configAdmin);
 const db = getFirestore(app);
+
+// BASE 2 - HISTORIAL DONDE SE GUARDA CANCELADO (MISMA QUE ME ENVIASTE)
+const configHistorial = {
+  apiKey: "AIzaSyCRx4B7mO444s0yU-WTnsqMjBHDWX4IRv8",
+  authDomain: "doloya-historial.firebaseapp.com",
+  projectId: "doloya-historial",
+  storageBucket: "doloya-historial.firebasestorage.app",
+  messagingSenderId: "41258055121",
+  appId: "1:41258055121:web:19a443786320e04ebd9cf0",
+  measurementId: "G-ENELTJ1X6R"
+};
+const appHistorial = initializeApp(configHistorial, "historialApp");
+const dbHistorial = getFirestore(appHistorial);
 
 let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
 let filtro = "todos";
@@ -187,9 +200,10 @@ function render(){
     return esDeJose && yaFueEnviado;
   });
 
+  // AHORA CANCELADOS Y FINALIZADOS YA NO APARECEN EN REPARTIDOR
   const mios = miosTodos.filter(p=>{
     const e=(p.estado||'').toLowerCase();
-    return !['finalizado','entregado'].includes(e);
+    return !['finalizado','entregado','cancelado'].includes(e);
   });
   
   const countsTodos = {todos:mios.length, activo:0, ir_a_recoger:0, recogido:0, ir_a_entregar:0, entregado:0, cancelado:0};
@@ -202,18 +216,18 @@ function render(){
   document.getElementById('c-recogido').textContent=countsTodos.recogido;
   document.getElementById('c-ir_a_entregar').textContent=countsTodos.ir_a_entregar;
   document.getElementById('c-entregado').textContent=0;
-  document.getElementById('c-cancelado').textContent=countsTodos.cancelado;
+  document.getElementById('c-cancelado').textContent=0;
   document.getElementById('bellCount').textContent=bellTotal;
 
   if(!primero && bellTotal>ultimoCount) sonarDoloYa();
   ultimoCount = bellTotal;
   primero=false;
 
-  const filtrados = filtro==='todos' ? mios : filtro==='entregado' ? [] : mios.filter(p=> mapEstado(p)===filtro);
+  const filtrados = mios;
   const lista = document.getElementById('lista');
   
   if(filtrados.length===0){
-    lista.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#64748b;font-weight:600">${filtro==='entregado' ? 'Ya no hay entregados, se enviaron a admin' : 'No hay pedidos en '+filtro.replace(/_/g,' ')}</div>`;
+    lista.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#64748b;font-weight:600">No hay pedidos activos</div>`;
     return;
   }
 
@@ -340,7 +354,20 @@ window.confirmarCancelar = async (id)=>{
     detalle = txt.value.trim();
     if(detalle.length<3){ alert('Explica el motivo'); return; }
   }
+  
+  const pedidoActual = pedidos.find(p=>p.id===id);
+  
+  // 1. QUITAR AL INSTANTE DE REPARTIDOR
+  const cardEl = document.getElementById('card-'+id);
+  if(cardEl){ cardEl.style.transition='all .25s'; cardEl.style.opacity='0'; cardEl.style.transform='scale(0.96)'; }
+  setTimeout(()=>{
+    pedidos = pedidos.filter(p=>p.id!==id);
+    render();
+  },250);
+  cerrarCancelar(id);
+
   try{
+    // 2. ACTUALIZAR EN ADMIN COMO CANCELADO
     await updateDoc(doc(db,"pedidos_admin",id),{
       estado:'cancelado',
       estadoRepartidor:'cancelado',
@@ -348,9 +375,26 @@ window.confirmarCancelar = async (id)=>{
       detalleCancelacion: detalle,
       canceladoPor: sesion.usuario,
       canceladoPorNombre: sesion.nombre,
-      canceladoEn: new Date().toISOString(),
+      canceladoEn: new Date(),
       actualizadoEn: new Date().toISOString()
     });
+
+    // 3. GUARDAR EN HISTORIAL - pedidos_cancelados (MISMA RUTA)
+    if(pedidoActual){
+      await setDoc(doc(dbHistorial, "pedidos_cancelados", id), {
+        ...pedidoActual,
+        estado:'cancelado',
+        estadoOriginal: pedidoActual.estado,
+        motivoCancelacion: motivo,
+        detalleCancelacion: detalle,
+        canceladoPor: sesion.usuario,
+        canceladoPorNombre: sesion.nombre,
+        canceladoEn: new Date(),
+        guardadoDesde: 'doloya-confirmacion',
+        tipo: 'cancelado'
+      });
+    }
+
     try{
       const otro = doc(db,"pedidos",id);
       const snap = await getDoc(otro);
@@ -358,8 +402,11 @@ window.confirmarCancelar = async (id)=>{
         await updateDoc(otro,{estado:'cancelado', motivoCancelacion:motivo, detalleCancelacion:detalle});
       }
     }catch{}
-    cerrarCancelar(id);
-  }catch(e){ alert(e.message); }
+
+  }catch(e){ 
+    console.error(e);
+    alert('Error al cancelar: '+e.message); 
+  }
 }
 
 window.accion = async (id, estado)=>{
