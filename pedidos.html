@@ -162,34 +162,43 @@ function getPaso(estado){
 }
 
 function render(){
-  const mios = pedidos.filter(p=>{
+  const miosTodos = pedidos.filter(p=>{
     const esDeJose = p.repartidorId===sesion.usuario || p.repartidorId==='Jose' || p.repartidorNombre===sesion.nombre || p.repartidorNombre==='Jose';
     const yaFueEnviado = !['nuevo','listo_para_admin','listo','sin_enviar','',undefined].includes(p.estado);
     return esDeJose && yaFueEnviado;
   });
-  
-  const counts = {todos:mios.length, activo:0, ir_a_recoger:0, recogido:0, ir_a_entregar:0, entregado:0, cancelado:0};
-  mios.forEach(p=>{ const m=mapEstado(p); if(counts[m]!==undefined) counts[m]++; });
-  
-  document.getElementById('c-todos').textContent=counts.todos;
-  document.getElementById('c-activo').textContent=counts.activo;
-  document.getElementById('c-ir_a_recoger').textContent=counts.ir_a_recoger;
-  document.getElementById('c-recogido').textContent=counts.recogido;
-  document.getElementById('c-ir_a_entregar').textContent=counts.ir_a_entregar;
-  document.getElementById('c-entregado').textContent=counts.entregado;
-  document.getElementById('c-cancelado').textContent=counts.cancelado;
-  document.getElementById('bellCount').textContent=counts.activo+counts.ir_a_recoger;
 
-  if(!primero && (counts.activo+counts.ir_a_recoger)>ultimoCount) sonarDoloYa();
-  ultimoCount = counts.activo+counts.ir_a_recoger;
+  // === FILTRO PARA REPARTIDOR: LOS FINALIZADOS NO APARECEN MÁS EN SU PANEL ===
+  const mios = miosTodos.filter(p=>{
+    const e=(p.estado||'').toLowerCase();
+    return !['finalizado','entregado'].includes(e);
+  });
+  
+  const countsTodos = {todos:mios.length, activo:0, ir_a_recoger:0, recogido:0, ir_a_entregar:0, entregado:0, cancelado:0};
+  // Para conteo usamos los visibles (sin finalizados) para que no se queden números en entregado
+  mios.forEach(p=>{ const m=mapEstado(p); if(countsTodos[m]!==undefined) countsTodos[m]++; });
+  // Pero bell solo con activos
+  const bellTotal = countsTodos.activo + countsTodos.ir_a_recoger;
+
+  // Para que el contador de Todos incluya solo visibles (ya entregados no cuentan)
+  document.getElementById('c-todos').textContent=countsTodos.todos;
+  document.getElementById('c-activo').textContent=countsTodos.activo;
+  document.getElementById('c-ir_a_recoger').textContent=countsTodos.ir_a_recoger;
+  document.getElementById('c-recogido').textContent=countsTodos.recogido;
+  document.getElementById('c-ir_a_entregar').textContent=countsTodos.ir_a_entregar;
+  document.getElementById('c-entregado').textContent=0; // ya no aparece en repartidor
+  document.getElementById('c-cancelado').textContent=countsTodos.cancelado;
+  document.getElementById('bellCount').textContent=bellTotal;
+
+  if(!primero && bellTotal>ultimoCount) sonarDoloYa();
+  ultimoCount = bellTotal;
   primero=false;
 
-  // === TODOS MUESTRA TODO, NO SE ESCONDE ===
-  const filtrados = filtro==='todos' ? mios : mios.filter(p=> mapEstado(p)===filtro);
+  const filtrados = filtro==='todos' ? mios : filtro==='entregado' ? [] : mios.filter(p=> mapEstado(p)===filtro);
   const lista = document.getElementById('lista');
   
   if(filtrados.length===0){
-    lista.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#64748b;font-weight:600">No hay pedidos en ${filtro.replace(/_/g,' ')}</div>`;
+    lista.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#64748b;font-weight:600">${filtro==='entregado' ? 'Ya no hay entregados, se enviaron a admin' : 'No hay pedidos en '+filtro.replace(/_/g,' ')}</div>`;
     return;
   }
 
@@ -224,7 +233,6 @@ function render(){
     let clsTengo = paso===1 ? 'verde-activo' : paso>1 ? 'gris-hecho' : 'gris-bloqueado';
     let clsEntregar = paso===2 ? 'verde-activo' : paso>2 ? 'gris-hecho' : 'gris-bloqueado';
     let clsEntregado = paso===3 ? 'verde-activo' : paso>3 ? 'gris-hecho' : 'gris-bloqueado';
-    if(paso===4){ clsRecoger='gris-hecho'; clsTengo='gris-hecho'; clsEntregar='gris-hecho'; clsEntregado='gris-hecho'; }
 
     return `
     <div class="card">
