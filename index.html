@@ -87,7 +87,7 @@ body{background:#fff;min-height:100vh;display:flex;flex-direction:column;align-i
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
@@ -120,12 +120,12 @@ document.getElementById('btnLogin').addEventListener('click', async ()=>{
   }
 
   const btn = document.getElementById('btnLogin');
+  const originalHTML = btn.innerHTML;
   btn.textContent = 'Verificando...';
   btn.disabled = true;
 
   try{
-    // LEE TODOS LOS REPARTIDORES EN TIEMPO REAL - ASI SI CAMBIAS USUARIO/CONTRASEÑA DESDE EL ADMIN SE REFLEJA AUTOMATICAMENTE
-    const snapAll = await get(child(ref(db), `repartidores`));
+    const snapAll = await get(ref(db, `repartidores`));
     let encontrado = null;
     let idEncontrado = null;
 
@@ -133,9 +133,8 @@ document.getElementById('btnLogin').addEventListener('click', async ()=>{
       const todos = snapAll.val();
       for(const id in todos){
         const r = todos[id];
-        const usuarioDB = (r.usuario || id || '').toString().trim();
+        const usuarioDB = (r.usuario || id).toString().trim();
         const passDB = (r.password || '').toString();
-        // compara sin distinguir mayúsculas en usuario, contraseña exacta
         if(usuarioDB.toLowerCase() === u.toLowerCase() && passDB === p){
           encontrado = r;
           idEncontrado = id;
@@ -145,7 +144,6 @@ document.getElementById('btnLogin').addEventListener('click', async ()=>{
     }
 
     if(encontrado){
-      // Guarda sesión con ID real de Firebase + datos actualizados en tiempo real
       const sesion = {
         id: idEncontrado,
         usuario: encontrado.usuario,
@@ -167,14 +165,14 @@ document.getElementById('btnLogin').addEventListener('click', async ()=>{
     }else{
       errorDiv.textContent="✖ Usuario y contraseña incorrectos";
       errorDiv.classList.add('show');
-      btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Iniciar sesión`;
+      btn.innerHTML = originalHTML;
       btn.disabled = false;
     }
   }catch(e){
     console.error(e);
     errorDiv.textContent="✖ Error de conexión";
     errorDiv.classList.add('show');
-    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Iniciar sesión`;
+    btn.innerHTML = originalHTML;
     btn.disabled = false;
   }
 });
