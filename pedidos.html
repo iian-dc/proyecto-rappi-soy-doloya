@@ -109,7 +109,6 @@ body{background:#f6f8fb;min-height:100vh}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-// BASE 1 - ADMIN DONDE ESTA pedidos_admin
 const configAdmin = {
   apiKey: "AIzaSyDLKngPyi_SWAXEQwdrHO5h8L8OufulAR4",
   authDomain: "doloya-confirmacion.firebaseapp.com",
@@ -121,7 +120,6 @@ const configAdmin = {
 const app = initializeApp(configAdmin);
 const db = getFirestore(app);
 
-// BASE 2 - HISTORIAL DONDE SE GUARDA CANCELADO (MISMA QUE ME ENVIASTE)
 const configHistorial = {
   apiKey: "AIzaSyCRx4B7mO444s0yU-WTnsqMjBHDWX4IRv8",
   authDomain: "doloya-historial.firebaseapp.com",
@@ -200,7 +198,6 @@ function render(){
     return esDeJose && yaFueEnviado;
   });
 
-  // AHORA CANCELADOS Y FINALIZADOS YA NO APARECEN EN REPARTIDOR
   const mios = miosTodos.filter(p=>{
     const e=(p.estado||'').toLowerCase();
     return !['finalizado','entregado','cancelado'].includes(e);
@@ -244,11 +241,21 @@ function render(){
     const colEntrega = p.cliente?.colonia || 'Col. Centro';
     const prods = p.productos || [];
     
-    const costoProdBase = Number(p.totales?.costoProductos ?? p.totales?.totalProductos ?? p.totales?.subtotal ?? 480);
-    const tarifaServicio = Number(p.totales?.tarifaServicio ?? p.totales?.tarifa ?? p.totales?.servicio ?? p.totales?.comision ?? 0);
-    const totalPedidoConTarifa = costoProdBase + tarifaServicio;
-    const costoEnvio = Number(p.totales?.costoEnvio ?? p.totales?.envio ?? 26.2);
-    const totalFinal = totalPedidoConTarifa + costoEnvio;
+    // ===== CORREGIDO - DECIMALES REALES PARA REPARTIDOR =====
+    let costoCalculado = 0;
+    if(prods && prods.length>0){
+      costoCalculado = prods.reduce((acc, it)=>{
+        const precio = parseFloat(it.precio ?? it.price ?? 0);
+        const cant = parseFloat(it.cantidad ?? it.qty ?? 1);
+        return acc + (precio * cant);
+      }, 0);
+    }
+    const costoGuardado = parseFloat(p.totales?.costoProductos ?? p.totales?.totalProductos ?? p.totales?.subtotal ?? 0);
+    const costoProdBase = costoCalculado > 0 ? costoCalculado : costoGuardado;
+    const tarifaServicio = parseFloat(p.totales?.tarifaServicio ?? p.totales?.tarifa ?? p.totales?.servicio ?? p.totales?.comision ?? 0);
+    const totalPedidoConTarifa = parseFloat((costoProdBase + tarifaServicio).toFixed(2));
+    const costoEnvio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? 0);
+    const totalFinal = parseFloat((totalPedidoConTarifa + costoEnvio).toFixed(2));
     
     let tsSec=0; let horaStr='02:07 p.m.';
     if(p.enviadoARepartidorEn?.seconds) tsSec=p.enviadoARepartidorEn.seconds;
@@ -282,7 +289,7 @@ function render(){
       </div>
       <div class="col cliente"><b>Cliente:</b><div class="name">${cliente}</div><div class="tel">${celular}</div></div>
       <div class="col prod"><b>Productos:</b><div class="prod-list">${prods.length>0 ? prods.map(pr=>`<div><span>${pr.nombre||pr.name}</span><span>x${pr.cantidad||1}</span></div>`).join('') : `<div><span>Hamburguesa clásica</span><span>x1</span></div>`}</div></div>
-      <div class="col tot"><b>Total del pedido</b><div class="val">$${totalPedidoConTarifa.toFixed(1)} MXN</div><div class="ship">Envío<br>$${costoEnvio.toFixed(1)} MXN</div><div class="total"><small>Total</small><strong>$${totalFinal.toFixed(1)} MXN</strong></div></div>
+      <div class="col tot"><b>Total del pedido</b><div class="val">$${totalPedidoConTarifa.toFixed(2)} MXN</div><div class="ship">Envío<br>$${costoEnvio.toFixed(2)} MXN</div><div class="total"><small>Total</small><strong>$${totalFinal.toFixed(2)} MXN</strong></div></div>
       <div class="col entrega"><b>Entrega en:</b><span>${dirEntrega}<br>${colEntrega}</span></div>
       
       <div class="card-bottom">
@@ -357,7 +364,6 @@ window.confirmarCancelar = async (id)=>{
   
   const pedidoActual = pedidos.find(p=>p.id===id);
   
-  // 1. QUITAR AL INSTANTE DE REPARTIDOR
   const cardEl = document.getElementById('card-'+id);
   if(cardEl){ cardEl.style.transition='all .25s'; cardEl.style.opacity='0'; cardEl.style.transform='scale(0.96)'; }
   setTimeout(()=>{
@@ -367,7 +373,6 @@ window.confirmarCancelar = async (id)=>{
   cerrarCancelar(id);
 
   try{
-    // 2. ACTUALIZAR EN ADMIN COMO CANCELADO
     await updateDoc(doc(db,"pedidos_admin",id),{
       estado:'cancelado',
       estadoRepartidor:'cancelado',
@@ -379,7 +384,6 @@ window.confirmarCancelar = async (id)=>{
       actualizadoEn: new Date().toISOString()
     });
 
-    // 3. GUARDAR EN HISTORIAL - pedidos_cancelados (MISMA RUTA)
     if(pedidoActual){
       await setDoc(doc(dbHistorial, "pedidos_cancelados", id), {
         ...pedidoActual,
