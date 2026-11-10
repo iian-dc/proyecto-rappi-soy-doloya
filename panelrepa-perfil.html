@@ -10,12 +10,10 @@
 body{height:100vh;display:flex;flex-direction:column;background:#C00612;overflow:hidden}
 .main{flex:1;display:flex;flex-direction:column;min-height:0}
 .topbar{height:64px;display:flex;align-items:center;gap:12px;padding:0 16px;flex-shrink:0}
-/* X ARRIBA A LA IZQUIERDA - CIRCULO ROJO CON X BLANCA */
 .btn-x-top{width:40px;height:40px;min-width:40px;background:white;color:#C00612;border:none;border-radius:50%;font-size:19px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
 .top-title{color:white}
 .top-title h1{font-size:21px;font-weight:900;line-height:1}
 .top-title p{font-size:11px;font-weight:600;opacity:.9;margin-top:2px}
-/* CIRCULO FOTO ARRIBA A LA DERECHA */
 .avatar-top{margin-left:auto;position:relative;width:48px;height:48px;min-width:48px;cursor:pointer}
 .avatar-top img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:3px solid white;background:white;display:block}
 .avatar-top .avatar-letra{width:48px;height:48px;border-radius:50%;background:white;color:#C00612;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;border:3px solid white}
@@ -52,14 +50,12 @@ select.input{appearance:none}
 <body>
 
 <div class="main">
-  <!-- ARRIBA: X IZQUIERDA + PERFIL + FOTO DERECHA -->
   <div class="topbar">
     <button class="btn-x-top" onclick="volverPanel()" title="Volver">✕</button>
     <div class="top-title">
       <h1>Perfil</h1>
       <p>Tu información de repartidor</p>
     </div>
-    <!-- CIRCULO PEQUEÑO ARRIBA A LA DERECHA - SE VE LA FOTO CUANDO LA SUBE -->
     <div class="avatar-top" onclick="document.getElementById('inputFoto').click()" title="Cambiar foto">
       <img id="avatarImg" src="" alt="" style="display:none">
       <div class="avatar-letra" id="avatarLetra">J</div>
@@ -68,7 +64,6 @@ select.input{appearance:none}
   </div>
 
   <div class="content">
-    <!-- FOTO DE PERFIL -->
     <div class="card">
       <h2>Foto de perfil</h2>
       <p class="sub">Toca el círculo de arriba o el botón para subir tu foto desde tu celular. Se verá reflejada arriba a la derecha.</p>
@@ -79,7 +74,6 @@ select.input{appearance:none}
       </div>
     </div>
 
-    <!-- INFORMACION -->
     <div class="card">
       <h2>Información</h2>
       <p class="sub">Tu nombre no se puede modificar, el resto sí.</p>
@@ -104,7 +98,6 @@ select.input{appearance:none}
       <input type="file" id="inputINE" accept="image/*" style="display:none">
     </div>
 
-    <!-- USUARIO Y CONTRASEÑA -->
     <div class="card">
       <h2>Usuario y contraseña</h2>
       <p class="sub">Puedes modificarlos en cualquier momento.</p>
@@ -127,7 +120,7 @@ select.input{appearance:none}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+import { getDatabase, ref, update, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 const configRepa = {
   apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
@@ -156,7 +149,6 @@ function pintarAvatar(){
     img.style.display='none'; letra.style.display='flex';
     letra.textContent = (perfil.nombre||'J').trim().charAt(0).toUpperCase();
   }
-  // INE preview
   const ineImg = document.getElementById('inePreview');
   const ineTxt = document.getElementById('ineTxt');
   if(perfil.ine){ ineImg.src = perfil.ine; ineImg.style.display='block'; ineTxt.textContent='✅ INE subida - Toca para cambiarla'; }
@@ -171,13 +163,20 @@ function llenarCampos(){
   pintarAvatar();
 }
 
-// CARGAR PERFIL DE ESTE REPARTIDOR
-const perfilRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/perfil`);
-onValue(perfilRef, (snap)=>{
+// CORREGIDO PARA TU BASE: DIRECTO EN repartidores/Jose, NO EN repartidores/Jose/perfil
+const repaRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}`);
+onValue(repaRef, (snap)=>{
   if(snap.exists()){
     let d = snap.val();
-    perfil = { ...perfil, ...d };
-    // Si en sesion hay nombre, ese manda y no se modifica
+    // Solo agarramos los campos de perfil, NO tocamos conectado, lat, lng, ubicacion, etc.
+    perfil = {
+      nombre: d.nombre || sesion.nombre || sesion.usuario || 'Jose',
+      usuario: d.usuario || sesion.usuario || 'Jose',
+      vehiculo: d.vehiculo || d.tipoVehiculo || 'Moto',
+      foto: d.foto || '',
+      ine: d.ine || '',
+      password: d.password || ''
+    };
     if(sesion.nombre) perfil.nombre = sesion.nombre;
     llenarCampos();
   }else{
@@ -191,7 +190,6 @@ function leerImagen(file, cb){
   r.readAsDataURL(file);
 }
 
-// FOTO DE PERFIL - SE REFLEJA ARRIBA A LA DERECHA EN EL CIRCULO
 document.getElementById('inputFoto').addEventListener('change', (e)=>{
   const f = e.target.files[0]; if(!f) return;
   leerImagen(f, async (dataUrl)=>{
@@ -202,7 +200,6 @@ document.getElementById('inputFoto').addEventListener('change', (e)=>{
   });
 });
 
-// INE - SUBIR DESDE CELULAR
 document.getElementById('inputINE').addEventListener('change', (e)=>{
   const f = e.target.files[0]; if(!f) return;
   leerImagen(f, async (dataUrl)=>{
@@ -225,9 +222,10 @@ window.verPass = ()=>{
   p.type = p.type === 'password' ? 'text' : 'password';
 };
 
+// USAMOS update PARA NO BORRAR conectado, lat, lng, ubicacion, pedidosCancelados, etc.
 async function guardarEnFirebase(silencioso){
   try{
-    await set(perfilRef, {
+    await update(repaRef, {
       nombre: perfil.nombre,
       usuario: perfil.usuario,
       vehiculo: perfil.vehiculo,
@@ -236,7 +234,6 @@ async function guardarEnFirebase(silencioso){
       password: perfil.password || '',
       actualizado: new Date().toISOString()
     });
-    // Actualizar sesion para que en panelrepa siga su nombre y usuario nuevo
     sesion.usuario = perfil.usuario;
     sesion.nombre = perfil.nombre;
     localStorage.setItem("repartidor_sesion", JSON.stringify(sesion));
@@ -257,12 +254,7 @@ window.guardarPerfil = async ()=>{
   perfil.usuario = nuevoUsuario;
   perfil.password = nuevaPass;
   perfil.vehiculo = document.getElementById('vehiculo').value;
-  // Si cambió el usuario, guardamos también en la llave nueva para no perder su perfil
   await guardarEnFirebase(false);
-  if(nuevoUsuario !== sesion.usuario){
-    // Copiar perfil a la nueva llave
-    try{ await set(ref(dbRepa, `repartidores/${nuevoUsuario}/perfil`), { nombre: perfil.nombre, usuario: perfil.usuario, vehiculo: perfil.vehiculo, foto: perfil.foto||'', ine: perfil.ine||'', password: perfil.password||'', actualizado: new Date().toISOString() }); }catch{}
-  }
   btn.disabled = false; btn.textContent = 'Guardar cambios';
 };
 
