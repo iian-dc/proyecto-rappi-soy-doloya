@@ -17,7 +17,8 @@ body{height:100vh;display:flex;flex-direction:column;background:#C00612;overflow
 .avatar-top{margin-left:auto;position:relative;width:48px;height:48px;min-width:48px;cursor:pointer}
 .avatar-top img{width:48px;height:48px;border-radius:50%;object-fit:cover;border:3px solid white;background:white;display:block}
 .avatar-top .avatar-letra{width:48px;height:48px;border-radius:50%;background:white;color:#C00612;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center;border:3px solid white}
-.avatar-top .avatar-cam{position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;background:white;color:#C00612;border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.avatar-top .avatar-cam{position:absolute;bottom:-2px;right:-2px;width:20px;height:20px;background:white;color:#C00612;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.avatar-top .avatar-cam svg{width:11px;height:11px}
 .content{flex:1;overflow-y:auto;padding:0 14px 20px}
 .card{background:white;border-radius:18px;padding:16px;margin-bottom:12px}
 .card h2{font-size:15px;font-weight:900;color:#0f172a;margin-bottom:4px}
@@ -28,14 +29,17 @@ body{height:100vh;display:flex;flex-direction:column;background:#C00612;overflow
 .input:focus{border-color:#C00612;background:white}
 .input[readonly]{background:#f1f5f9;color:#475569;cursor:not-allowed}
 .input-row{display:flex;gap:8px;align-items:center}
-.btn-ojo{background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:12px;width:46px;height:46px;min-width:46px;cursor:pointer;font-size:16px}
+.btn-ojo{background:#f1f5f9;border:1.5px solid #e2e8f0;border-radius:12px;width:46px;height:46px;min-width:46px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.btn-ojo svg{width:18px;height:18px}
 select.input{appearance:none}
 .ine-box{border:1.5px dashed #cbd5e1;border-radius:14px;padding:12px;text-align:center;background:#f8fafc;cursor:pointer}
 .ine-box img{width:100%;max-height:220px;object-fit:cover;border-radius:10px;display:none;margin-bottom:8px}
-.ine-box .ine-txt{font-size:12px;font-weight:800;color:#475569}
+.ine-box .ine-txt{font-size:12px;font-weight:800;color:#475569;display:flex;align-items:center;justify-content:center;gap:6px}
+.ine-box .ine-txt svg{width:15px;height:15px;flex-shrink:0}
 .ine-box .ine-sub{font-size:11px;color:#94a3b8;font-weight:600;margin-top:3px}
 .foto-row{display:flex;gap:10px}
-.btn-foto{flex:1;border:none;border-radius:12px;padding:12px;font-size:13px;font-weight:800;cursor:pointer}
+.btn-foto{flex:1;border:none;border-radius:12px;padding:12px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-foto svg{width:16px;height:16px}
 .btn-foto-rojo{background:#C00612;color:white}
 .btn-foto-gris{background:#f1f5f9;color:#334155}
 .btn-guardar{width:100%;background:#C00612;color:white;border:none;border-radius:999px;padding:14px;font-size:15px;font-weight:900;cursor:pointer;margin-top:6px}
@@ -45,6 +49,34 @@ select.input{appearance:none}
 .msg.err{color:#C00612;display:block}
 .nota{font-size:11px;color:#64748b;font-weight:600;line-height:1.4;margin-top:10px;text-align:center}
 .hidden{display:none!important}
+
+/* CELULAR - TODO MAS REDUCIDO Y ORGANIZADO */
+@media(max-width:768px){
+  .topbar{height:52px;padding:0 12px;gap:10px}
+  .btn-x-top{width:32px;height:32px;min-width:32px;font-size:15px}
+  .top-title h1{font-size:17px}
+  .top-title p{font-size:10px;margin-top:1px}
+  .avatar-top{width:38px;height:38px;min-width:38px}
+  .avatar-top img,.avatar-top .avatar-letra{width:38px;height:38px;font-size:16px;border-width:2px}
+  .avatar-top .avatar-cam{width:16px;height:16px;bottom:-1px;right:-1px}
+  .avatar-top .avatar-cam svg{width:9px;height:9px}
+  .content{padding:0 10px 14px}
+  .card{padding:12px;border-radius:14px;margin-bottom:9px}
+  .card h2{font-size:13.5px;margin-bottom:2px}
+  .card p.sub{font-size:11px;margin-bottom:10px}
+  .label{font-size:11px;margin:9px 0 5px}
+  .input{padding:9px 11px;font-size:13px;border-radius:10px}
+  .btn-ojo{width:38px;height:38px;min-width:38px;border-radius:10px}
+  .btn-ojo svg{width:16px;height:16px}
+  .ine-box{padding:10px;border-radius:11px}
+  .ine-box img{max-height:150px}
+  .ine-box .ine-txt{font-size:11.5px}
+  .ine-box .ine-sub{font-size:10px}
+  .btn-foto{padding:10px;font-size:12px;border-radius:10px}
+  .btn-guardar{padding:11px;font-size:13.5px}
+  .nota{font-size:10px;margin-top:8px}
+  .msg{font-size:11px}
+}
 </style>
 </head>
 <body>
@@ -59,7 +91,7 @@ select.input{appearance:none}
     <div class="avatar-top" onclick="document.getElementById('inputFoto').click()" title="Cambiar foto">
       <img id="avatarImg" src="" alt="" style="display:none">
       <div class="avatar-letra" id="avatarLetra">J</div>
-      <div class="avatar-cam">📷</div>
+      <div class="avatar-cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
     </div>
   </div>
 
@@ -69,8 +101,8 @@ select.input{appearance:none}
       <p class="sub">Toca el círculo de arriba o el botón para subir tu foto desde tu celular. Se verá reflejada arriba a la derecha.</p>
       <input type="file" id="inputFoto" accept="image/*" style="display:none">
       <div class="foto-row">
-        <button class="btn-foto btn-foto-rojo" onclick="document.getElementById('inputFoto').click()">📷 Subir foto</button>
-        <button class="btn-foto btn-foto-gris" onclick="quitarFoto()">Quitar foto</button>
+        <button class="btn-foto btn-foto-rojo" onclick="document.getElementById('inputFoto').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Subir foto</button>
+        <button class="btn-foto btn-foto-gris" onclick="quitarFoto()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Quitar foto</button>
       </div>
     </div>
 
@@ -83,16 +115,16 @@ select.input{appearance:none}
 
       <label class="label">Tipo de vehículo</label>
       <select class="input" id="vehiculo">
-        <option value="Moto">🛵 Moto</option>
-        <option value="Bicicleta">🚲 Bicicleta</option>
-        <option value="Carro">🚗 Carro</option>
-        <option value="A pie">🚶 A pie</option>
+        <option value="Moto">Moto</option>
+        <option value="Bicicleta">Bicicleta</option>
+        <option value="Carro">Carro</option>
+        <option value="A pie">A pie</option>
       </select>
 
       <label class="label">INE - Subir foto desde tu celular</label>
       <div class="ine-box" onclick="document.getElementById('inputINE').click()">
         <img id="inePreview" src="" alt="INE">
-        <div class="ine-txt" id="ineTxt">📄 Toca aquí para subir tu INE</div>
+        <div class="ine-txt" id="ineTxt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Toca aquí para subir tu INE</div>
         <div class="ine-sub">Se guarda solo en tu cuenta, nadie más la ve</div>
       </div>
       <input type="file" id="inputINE" accept="image/*" style="display:none">
@@ -108,7 +140,7 @@ select.input{appearance:none}
       <label class="label">Contraseña</label>
       <div class="input-row">
         <input class="input" id="password" type="password" value="" placeholder="Nueva contraseña">
-        <button class="btn-ojo" onclick="verPass()" type="button">👁️</button>
+        <button class="btn-ojo" onclick="verPass()" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
 
       <button class="btn-guardar" id="btnGuardar" onclick="guardarPerfil()">Guardar cambios</button>
@@ -120,7 +152,7 @@ select.input{appearance:none}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, update, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 
 const configRepa = {
   apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
@@ -137,7 +169,6 @@ const dbRepa = getDatabase(appRepa);
 let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
 let perfil = { nombre: sesion.nombre || sesion.usuario || 'Jose', usuario: sesion.usuario || 'Jose', vehiculo: 'Moto', foto: '', ine: '', password: '' };
 
-// X ARRIBA A LA IZQUIERDA -> REGRESA A panelrepa.html
 window.volverPanel = ()=>{ window.location.href='panelrepa.html'; };
 
 function pintarAvatar(){
@@ -151,8 +182,8 @@ function pintarAvatar(){
   }
   const ineImg = document.getElementById('inePreview');
   const ineTxt = document.getElementById('ineTxt');
-  if(perfil.ine){ ineImg.src = perfil.ine; ineImg.style.display='block'; ineTxt.textContent='✅ INE subida - Toca para cambiarla'; }
-  else{ ineImg.style.display='none'; ineTxt.textContent='📄 Toca aquí para subir tu INE'; }
+  if(perfil.ine){ ineImg.src = perfil.ine; ineImg.style.display='block'; ineTxt.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> INE subida - Toca para cambiarla'; }
+  else{ ineImg.style.display='none'; ineTxt.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Toca aquí para subir tu INE'; }
 }
 
 function llenarCampos(){
@@ -163,20 +194,11 @@ function llenarCampos(){
   pintarAvatar();
 }
 
-// CORREGIDO PARA TU BASE: DIRECTO EN repartidores/Jose, NO EN repartidores/Jose/perfil
-const repaRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}`);
-onValue(repaRef, (snap)=>{
+const perfilRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/perfil`);
+onValue(perfilRef, (snap)=>{
   if(snap.exists()){
     let d = snap.val();
-    // Solo agarramos los campos de perfil, NO tocamos conectado, lat, lng, ubicacion, etc.
-    perfil = {
-      nombre: d.nombre || sesion.nombre || sesion.usuario || 'Jose',
-      usuario: d.usuario || sesion.usuario || 'Jose',
-      vehiculo: d.vehiculo || d.tipoVehiculo || 'Moto',
-      foto: d.foto || '',
-      ine: d.ine || '',
-      password: d.password || ''
-    };
+    perfil = { ...perfil, ...d };
     if(sesion.nombre) perfil.nombre = sesion.nombre;
     llenarCampos();
   }else{
@@ -196,7 +218,7 @@ document.getElementById('inputFoto').addEventListener('change', (e)=>{
     perfil.foto = dataUrl;
     pintarAvatar();
     await guardarEnFirebase(true);
-    mostrarMsg('Foto actualizada ✅', true);
+    mostrarMsg('Foto actualizada', true);
   });
 });
 
@@ -206,7 +228,7 @@ document.getElementById('inputINE').addEventListener('change', (e)=>{
     perfil.ine = dataUrl;
     pintarAvatar();
     await guardarEnFirebase(true);
-    mostrarMsg('INE subida ✅', true);
+    mostrarMsg('INE subida', true);
   });
 });
 
@@ -222,10 +244,9 @@ window.verPass = ()=>{
   p.type = p.type === 'password' ? 'text' : 'password';
 };
 
-// USAMOS update PARA NO BORRAR conectado, lat, lng, ubicacion, pedidosCancelados, etc.
 async function guardarEnFirebase(silencioso){
   try{
-    await update(repaRef, {
+    await set(perfilRef, {
       nombre: perfil.nombre,
       usuario: perfil.usuario,
       vehiculo: perfil.vehiculo,
@@ -237,7 +258,7 @@ async function guardarEnFirebase(silencioso){
     sesion.usuario = perfil.usuario;
     sesion.nombre = perfil.nombre;
     localStorage.setItem("repartidor_sesion", JSON.stringify(sesion));
-    if(!silencioso) mostrarMsg('Cambios guardados ✅', true);
+    if(!silencioso) mostrarMsg('Cambios guardados', true);
   }catch(e){
     if(!silencioso) mostrarMsg('Error al guardar, intenta de nuevo', false);
     console.log(e);
@@ -255,6 +276,9 @@ window.guardarPerfil = async ()=>{
   perfil.password = nuevaPass;
   perfil.vehiculo = document.getElementById('vehiculo').value;
   await guardarEnFirebase(false);
+  if(nuevoUsuario !== sesion.usuario){
+    try{ await set(ref(dbRepa, `repartidores/${nuevoUsuario}/perfil`), { nombre: perfil.nombre, usuario: perfil.usuario, vehiculo: perfil.vehiculo, foto: perfil.foto||'', ine: perfil.ine||'', password: perfil.password||'', actualizado: new Date().toISOString() }); }catch{}
+  }
   btn.disabled = false; btn.textContent = 'Guardar cambios';
 };
 
