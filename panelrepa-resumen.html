@@ -113,6 +113,15 @@ const configAdmin = {
   messagingSenderId: "832228761099",
   appId: "1:832228761099:web:ddd4b6a0ee0d7f0494b10e"
 };
+const configHistorial = {
+  apiKey: "AIzaSyCRx4B7mO444s0yU-WTnsqMjBHDWX4IRv8",
+  authDomain: "doloya-historial.firebaseapp.com",
+  projectId: "doloya-historial",
+  storageBucket: "doloya-historial.firebasestorage.app",
+  messagingSenderId: "41258055121",
+  appId: "1:41258055121:web:19a443786320e04ebd9cf0",
+  measurementId: "G-ENELTJ1X6R"
+};
 const configRepa = {
   apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
   authDomain: "doloya-repartidores.firebaseapp.com",
@@ -123,8 +132,10 @@ const configRepa = {
   appId: "1:308893983803:web:fe2b85c80f3a203de9a81e"
 };
 const appAdmin = initializeApp(configAdmin, "admin");
+const appHistorial = initializeApp(configHistorial, "historial");
 const appRepa = initializeApp(configRepa, "repa");
 const dbAdmin = getFirestore(appAdmin);
+const dbHistorial = getFirestore(appHistorial);
 const dbRepa = getDatabase(appRepa);
 let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
 document.getElementById('repaName').textContent = sesion.nombre || sesion.usuario || 'Repartidor';
@@ -190,7 +201,7 @@ function esPagado(p){
   return false;
 }
 function formatearFecha(p){
-  let f = p.fecha || p.fechaEntrega || p.createdAt || p.timestamp || p.fechaCreacion;
+  let f = p.actualizadoEn || p.fecha || p.fechaEntrega || p.createdAt || p.timestamp || p.fechaCreacion;
   if(!f) return '-';
   if(f && f.toDate) f = f.toDate();
   else if(typeof f === 'number') f = new Date(f);
@@ -198,11 +209,12 @@ function formatearFecha(p){
   if(isNaN(f.getTime())) return '-';
   return f.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + f.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
 }
+function esMio(p){
+  return (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose" || p.repartidor===sesion.usuario || p.repartidor===sesion.nombre || p.actualizadoPor===sesion.nombre || p.actualizadoPor===sesion.usuario || p.nombre===sesion.nombre);
+}
 function pintarTabla(){
-  let mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose" || p.repartidor===sesion.usuario || p.repartidor===sesion.nombre));
-  // En pedidos_entregados ya todos son entregados, pero dejamos el filtro por seguridad
+  let mios = pedidosAll.filter(esMio);
   let entregados = mios.filter(p=> normalizarEstado(p.estado)==='entregado' || !p.estado);
-  // Si en pedidos_entregados no viene estado, igual cuenta como entregado
   if(entregados.length===0 && mios.length>0) entregados = mios;
   let pagados = entregados.filter(p=> esPagado(p));
   let pendientes = entregados.filter(p=> !esPagado(p));
@@ -211,7 +223,7 @@ function pintarTabla(){
   document.getElementById('cPendiente').textContent = pendientes.length;
   let totalEnvioAll = 0, totalPorPagar = 0, totalPagado = 0;
   entregados.forEach(p=>{
-    let envio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? 0);
+    let envio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? p.totales?.totalEnvio ?? 0);
     let aDar = parseFloat((envio * porcentajeDePedido(p) / 100).toFixed(2));
     totalEnvioAll += envio;
     if(esPagado(p)) totalPagado += aDar; else totalPorPagar += aDar;
@@ -230,15 +242,15 @@ function pintarTabla(){
     return;
   }
   lista = [...lista].sort((a,b)=>{
-    let fa = a.fecha || a.createdAt || a.timestamp || 0;
-    let fb = b.fecha || b.createdAt || b.timestamp || 0;
+    let fa = a.actualizadoEn || a.fecha || a.createdAt || a.timestamp || 0;
+    let fb = b.actualizadoEn || b.fecha || b.createdAt || b.timestamp || 0;
     if(fa && fa.toDate) fa = fa.toDate().getTime();
     if(fb && fb.toDate) fb = fb.toDate().getTime();
     return new Date(fb) - new Date(fa);
   });
   tbody.innerHTML = lista.map(p=>{
     let numeroPedido = p.codigo || p.numeroPedido || p.numero || p.numPedido || p.folio || '-';
-    let envio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? 0);
+    let envio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? p.totales?.totalEnvio ?? 0);
     let porc = porcentajeDePedido(p);
     let aDar = parseFloat((envio * porc / 100).toFixed(2));
     let pagado = esPagado(p);
@@ -255,16 +267,13 @@ function pintarTabla(){
 }
 window.cambiarPago = async (id, nuevoValor)=>{
   try{
-    // El pago se guarda donde está guardado el pedido entregado
-    await updateDoc(doc(dbAdmin, "pedidos_entregados", id), { pagado: nuevoValor, estadoPago: nuevoValor ? 'pagado' : 'pendiente', fechaPago: nuevoValor ? new Date() : null });
+    await updateDoc(doc(dbHistorial, "pedidos_entregados", id), { pagado: nuevoValor, estadoPago: nuevoValor ? 'pagado' : 'pendiente', fechaPago: nuevoValor ? new Date() : null });
   }catch(e){ alert('Error al cambiar pago: ' + e.message); }
 };
-// RESUMEN LEE DE DONDE SE GUARDA LO ENTREGADO - AHÍ SE QUEDA ALMACENADO Y NO SE BORRA
-onSnapshot(collection(dbAdmin,"pedidos_entregados"), (snap)=>{
+onSnapshot(collection(dbHistorial,"pedidos_entregados"), (snap)=>{
   pedidosAll = snap.docs.map(d=>({id:d.id, ...d.data()}));
   pintarTabla();
 });
-// La campanita sí sigue leyendo los nuevos de pedidos_admin, eso no se toca
 onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
   const todos = snap.docs.map(d=>({id:d.id, ...d.data()}));
   const mios = todos.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose"));
