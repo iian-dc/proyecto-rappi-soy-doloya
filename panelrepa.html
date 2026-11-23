@@ -395,6 +395,10 @@ window.instalarApp = async ()=>{
   alert('Para instalar: abre el menú de tu navegador (los 3 puntitos) y dale a "Instalar aplicación" o "Agregar a pantalla de inicio".');
 };
 actualizarBotonInstalar();
+// REGISTRAR SERVICE WORKER PARA QUE SE PUEDA INSTALAR LA APP
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
 onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
   pedidosAll = snap.docs.map(d=>({id:d.id, ...d.data()}));
   const mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose") );
