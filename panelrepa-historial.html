@@ -187,9 +187,9 @@ function combinarHistorial(){
 }
 function pintarTabla(){
   let mios = pedidosAll.filter(esMio);
-  let historial = mios.filter(p=>{ let e = normalizarEstado(p.estado); return e==='entregado' || e==='cancelado'; });
-  let entregados = historial.filter(p=> normalizarEstado(p.estado)==='entregado');
-  let cancelados = historial.filter(p=> normalizarEstado(p.estado)==='cancelado');
+  let historial = mios;
+  let entregados = historial.filter(p=> p._coleccion==='pedidos_entregados' || normalizarEstado(p.estado)==='entregado');
+  let cancelados = historial.filter(p=> p._coleccion==='pedidos_cancelados' || normalizarEstado(p.estado)==='cancelado');
   document.getElementById('cTodos').textContent = historial.length;
   document.getElementById('cEntregados').textContent = entregados.length;
   document.getElementById('cCancelados').textContent = cancelados.length;
@@ -210,8 +210,8 @@ function pintarTabla(){
     return new Date(fb) - new Date(fa);
   });
   tbody.innerHTML = lista.map(p=>{
-    let e = normalizarEstado(p.estado);
-    let pill = e==='entregado' ? '<span class="pill pill-entregado">Entregado</span>' : '<span class="pill pill-cancelado">Cancelado</span>';
+    let esCanc = p._coleccion==='pedidos_cancelados' || normalizarEstado(p.estado)==='cancelado';
+    let pill = !esCanc ? '<span class="pill pill-entregado">Entregado</span>' : '<span class="pill pill-cancelado">Cancelado</span>';
     let numeroPedido = p.codigo || p.numeroPedido || p.numero || p.numPedido || p.folio || '-';
     let cliente = p.cliente?.nombre || p.clienteNombre || p.cliente || p.nombreCliente || p.detalles?.nombre || '-';
     if(typeof cliente === 'object') cliente = cliente.nombre || '-';
@@ -234,16 +234,14 @@ function pintarTabla(){
     </tr>`;
   }).join('');
 }
-// HISTORIAL LEE DE DONDE SE GUARDA LO ENTREGADO Y LO CANCELADO - AHÍ SE QUEDA ALMACENADO Y NO SE BORRA
 onSnapshot(collection(dbHistorial,"pedidos_entregados"), (snap)=>{
-  entregadosHist = snap.docs.map(d=>({id:d.id, ...d.data(), estado: d.data().estado || 'entregado', _coleccion: 'pedidos_entregados'}));
+  entregadosHist = snap.docs.map(d=>({id:d.id, ...d.data(), estado: 'entregado', _coleccion: 'pedidos_entregados'}));
   combinarHistorial();
 });
 onSnapshot(collection(dbHistorial,"pedidos_cancelados"), (snap)=>{
-  canceladosHist = snap.docs.map(d=>({id:d.id, ...d.data(), estado: d.data().estado || 'cancelado', _coleccion: 'pedidos_cancelados'}));
+  canceladosHist = snap.docs.map(d=>({id:d.id, ...d.data(), estado: 'cancelado', _coleccion: 'pedidos_cancelados'}));
   combinarHistorial();
 });
-// La campanita sí sigue leyendo los nuevos de pedidos_admin, eso no se toca
 onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
   const todos = snap.docs.map(d=>({id:d.id, ...d.data()}));
   const mios = todos.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose"));
