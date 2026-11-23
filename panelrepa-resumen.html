@@ -18,7 +18,6 @@ body{height:100vh;display:flex;flex-direction:column;background:#C00612;overflow
 .hist-header h1{font-size:22px;font-weight:900;color:#0f172a}
 .hist-header p{font-size:12px;color:#64748b;font-weight:600;margin-top:1px}
 .hist-header .repa-name{margin-left:auto;background:#fef2f2;color:#C00612;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:800}
-/* TARJETAS ESTADISTICAS */
 .stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
 .stat{background:white;border-radius:16px;padding:14px}
 .stat small{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase}
@@ -65,24 +64,21 @@ tbody tr:hover{background:#fef2f2}
     <div class="hist-header">
       <div>
         <h1>Resumen de ingresos</h1>
-        <p>Solo pedidos entregados - dato estadístico</p>
+        <p>Solo pedidos entregados - el repartidor gana el 80% del envío</p>
       </div>
       <div class="repa-name" id="repaName">Repartidor</div>
     </div>
-
     <div class="stats">
       <div class="stat"><small>Entregados</small><b id="statEntregados">0</b><span>pedidos entregados</span></div>
       <div class="stat"><small>Total envío</small><b id="statTotalEnvio">$0.00</b><span>suma de envíos</span></div>
-      <div class="stat naranja"><small>Por pagar</small><b id="statPorPagar">$0.00</b><span>lo que te tiene que dar</span></div>
-      <div class="stat verde"><small>Ya pagado</small><b id="statPagado">$0.00</b><span>ya se lo pagaste</span></div>
+      <div class="stat naranja"><small>Por pagar</small><b id="statPorPagar">$0.00</b><span>80% por pagar al repartidor</span></div>
+      <div class="stat verde"><small>Ya pagado</small><b id="statPagado">$0.00</b><span>80% ya pagado</span></div>
     </div>
-
     <div class="filtros">
       <button class="f-btn active" id="fTodos" onclick="setFiltro('todos')">Todos <small id="cTodos">0</small></button>
       <button class="f-btn" id="fPendiente" onclick="setFiltro('pendiente')">Por pagar <small id="cPendiente">0</small></button>
       <button class="f-btn" id="fPagado" onclick="setFiltro('pagado')">Ya pagado <small id="cPagado">0</small></button>
     </div>
-
     <div class="tabla-box">
       <div class="tabla-title"><span>Resumen de ingresos</span><span id="totalLabel">0 pedidos</span></div>
       <div class="tabla-scroll">
@@ -93,7 +89,7 @@ tbody tr:hover{background:#fef2f2}
               <th>N° Pedido</th>
               <th>Total Envío</th>
               <th>% Entrega</th>
-              <th>Lo que me tiene que dar</th>
+              <th>Lo que le pagas al repartidor</th>
               <th>Estado de pago</th>
             </tr>
           </thead>
@@ -136,6 +132,7 @@ let pedidosAll = [];
 let filtroActual = 'todos';
 let watchId = null;
 let conectado = false;
+const PORCENTAJE_REPARTIDOR = 80;
 const rRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/conectado`);
 onValue(rRef, (snap)=>{
   if(snap.exists()) conectado = snap.val()===true; else conectado = false;
@@ -196,8 +193,7 @@ function pintarTabla(){
   let totalEnvioAll = 0, totalPorPagar = 0, totalPagado = 0;
   entregados.forEach(p=>{
     let envio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? 0);
-    let porc = parseFloat(p.porcentajeEntrega ?? p.porcentajeRepartidor ?? p.porcentaje ?? 100);
-    let aDar = parseFloat((envio * porc / 100).toFixed(2));
+    let aDar = parseFloat((envio * PORCENTAJE_REPARTIDOR / 100).toFixed(2));
     totalEnvioAll += envio;
     if(esPagado(p)) totalPagado += aDar; else totalPorPagar += aDar;
   });
@@ -224,15 +220,14 @@ function pintarTabla(){
   tbody.innerHTML = lista.map(p=>{
     let numeroPedido = p.codigo || p.numeroPedido || p.numero || p.numPedido || p.folio || '-';
     let envio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? 0);
-    let porc = parseFloat(p.porcentajeEntrega ?? p.porcentajeRepartidor ?? p.porcentaje ?? 100);
-    let aDar = parseFloat((envio * porc / 100).toFixed(2));
+    let aDar = parseFloat((envio * PORCENTAJE_REPARTIDOR / 100).toFixed(2));
     let pagado = esPagado(p);
     let pill = pagado ? `<button class="pill pill-pagado" onclick="cambiarPago('${p.id}', false)">✓ Ya pagado</button>` : `<button class="pill pill-pendiente" onclick="cambiarPago('${p.id}', true)">⏳ No se lo he pagado</button>`;
     return `<tr>
       <td>${formatearFecha(p)}</td>
       <td><b>#${numeroPedido}</b></td>
       <td><b>$${envio.toFixed(2)}</b></td>
-      <td>${porc}%</td>
+      <td>${PORCENTAJE_REPARTIDOR}%</td>
       <td><b>$${aDar.toFixed(2)}</b></td>
       <td>${pill}</td>
     </tr>`;
