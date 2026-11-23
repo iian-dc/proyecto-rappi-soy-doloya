@@ -192,7 +192,7 @@ function esPagado(p){
 function formatearFecha(p){
   let f = p.fecha || p.fechaEntrega || p.createdAt || p.timestamp || p.fechaCreacion;
   if(!f) return '-';
-  if(f.toDate) f = f.toDate();
+  if(f && f.toDate) f = f.toDate();
   else if(typeof f === 'number') f = new Date(f);
   else f = new Date(f);
   if(isNaN(f.getTime())) return '-';
@@ -200,7 +200,10 @@ function formatearFecha(p){
 }
 function pintarTabla(){
   let mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose" || p.repartidor===sesion.usuario || p.repartidor===sesion.nombre));
-  let entregados = mios.filter(p=> normalizarEstado(p.estado)==='entregado');
+  // En pedidos_entregados ya todos son entregados, pero dejamos el filtro por seguridad
+  let entregados = mios.filter(p=> normalizarEstado(p.estado)==='entregado' || !p.estado);
+  // Si en pedidos_entregados no viene estado, igual cuenta como entregado
+  if(entregados.length===0 && mios.length>0) entregados = mios;
   let pagados = entregados.filter(p=> esPagado(p));
   let pendientes = entregados.filter(p=> !esPagado(p));
   document.getElementById('cTodos').textContent = entregados.length;
@@ -252,15 +255,21 @@ function pintarTabla(){
 }
 window.cambiarPago = async (id, nuevoValor)=>{
   try{
-    await updateDoc(doc(dbAdmin, "pedidos_admin", id), { pagado: nuevoValor, estadoPago: nuevoValor ? 'pagado' : 'pendiente', fechaPago: nuevoValor ? new Date() : null });
+    // El pago se guarda donde está guardado el pedido entregado
+    await updateDoc(doc(dbAdmin, "pedidos_entregados", id), { pagado: nuevoValor, estadoPago: nuevoValor ? 'pagado' : 'pendiente', fechaPago: nuevoValor ? new Date() : null });
   }catch(e){ alert('Error al cambiar pago: ' + e.message); }
 };
-onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
+// RESUMEN LEE DE DONDE SE GUARDA LO ENTREGADO - AHÍ SE QUEDA ALMACENADO Y NO SE BORRA
+onSnapshot(collection(dbAdmin,"pedidos_entregados"), (snap)=>{
   pedidosAll = snap.docs.map(d=>({id:d.id, ...d.data()}));
-  const mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose") );
+  pintarTabla();
+});
+// La campanita sí sigue leyendo los nuevos de pedidos_admin, eso no se toca
+onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
+  const todos = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  const mios = todos.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose"));
   const nuevos = mios.filter(p=>p.estado==='enviado_a_repartidor');
   document.getElementById('bellCount').textContent = nuevos.length;
-  pintarTabla();
 });
 </script>
 </body>
