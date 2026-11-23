@@ -16,6 +16,8 @@ body{background:#f6f8fb;min-height:100vh}
 .right{position:relative}
 .bell{width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
 .bell-count{position:absolute;top:-4px;right:-4px;background:#E30613;color:white;min-width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid white}
+.bell-count.pulse{animation:badgePop .5s ease}
+@keyframes badgePop{0%{transform:scale(1)}50%{transform:scale(1.6)}100%{transform:scale(1)}}
 .bell.vibrar{animation:bell3D .12s infinite;transform-style:preserve-3d}
 @keyframes bell3D{0%{transform:rotateZ(-18deg) rotateY(-20deg) scale(1.2)}25%{transform:rotateZ(18deg) rotateY(20deg) scale(1.35)}50%{transform:rotateZ(-15deg) rotateY(-15deg) scale(1.3)}75%{transform:rotateZ(15deg) rotateY(15deg) scale(1.35)}100%{transform:rotateZ(-18deg) rotateY(-20deg) scale(1.2)}}
 .tabs{display:flex;gap:10px;overflow-x:auto;padding:14px 18px;white-space:nowrap;scrollbar-width:none}
@@ -84,7 +86,6 @@ body{background:#f6f8fb;min-height:100vh}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="left">
     <button class="btn-x" onclick="window.location.href='panelrepa.html'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
@@ -92,7 +93,6 @@ body{background:#f6f8fb;min-height:100vh}
   </div>
   <div class="right"><div class="bell" id="bell"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E30613" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 9H0s6-2 6-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="bell-count" id="bellCount">0</span></div></div>
 </div>
-
 <div class="tabs">
   <div class="tab active" data-f="todos" onclick="filtrar('todos')">Todos <span class="num" id="c-todos">0</span></div>
   <div class="tab" data-f="activo" onclick="filtrar('activo')">Activo <span class="num" id="c-activo">0</span></div>
@@ -102,13 +102,11 @@ body{background:#f6f8fb;min-height:100vh}
   <div class="tab" data-f="entregado" onclick="filtrar('entregado')">Entregado <span class="num" id="c-entregado">0</span></div>
   <div class="tab" data-f="cancelado" onclick="filtrar('cancelado')">Cancelado <span class="num" id="c-cancelado">0</span></div>
 </div>
-
 <div class="container" id="lista"></div>
-
+<audio id="audioPedido" src="sonido-pedido.mp3" preload="auto"></audio>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, onSnapshot, doc, updateDoc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
-
 const configAdmin = {
   apiKey: "AIzaSyDLKngPyi_SWAXEQwdrHO5h8L8OufulAR4",
   authDomain: "doloya-confirmacion.firebaseapp.com",
@@ -119,7 +117,6 @@ const configAdmin = {
 };
 const app = initializeApp(configAdmin);
 const db = getFirestore(app);
-
 const configHistorial = {
   apiKey: "AIzaSyCRx4B7mO444s0yU-WTnsqMjBHDWX4IRv8",
   authDomain: "doloya-historial.firebaseapp.com",
@@ -131,13 +128,22 @@ const configHistorial = {
 };
 const appHistorial = initializeApp(configHistorial, "historialApp");
 const dbHistorial = getFirestore(appHistorial);
-
 let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
 let filtro = "todos";
 let pedidos = [];
 let ultimoCount = 0;
 let primero = true;
-
+let audioCtxGlobal = null;
+function desbloquearAudio(){
+  try{
+    if(!audioCtxGlobal) audioCtxGlobal = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtxGlobal.state === 'suspended') audioCtxGlobal.resume();
+    let a = document.getElementById('audioPedido');
+    if(a){ a.volume = 0; a.play().then(()=>{ a.pause(); a.currentTime = 0; a.volume = 1; }).catch(()=>{}); }
+  }catch(e){}
+}
+document.addEventListener('click', desbloquearAudio);
+document.addEventListener('touchstart', desbloquearAudio);
 function calcularTiempoReal(sec){
   if(!sec) return {texto:'0s', clase:'tiempo-verde'};
   const diff=Math.floor(Date.now()/1000-sec);
@@ -146,14 +152,20 @@ function calcularTiempoReal(sec){
   let clase='tiempo-verde'; if(diff<840) clase='tiempo-verde'; else if(diff<1080) clase='tiempo-amarillo'; else clase='tiempo-rojo';
   return {texto, clase};
 }
-
 function sonarDoloYa(){
   const bell = document.getElementById('bell');
-  bell.classList.add('vibrar');
-  setTimeout(()=>bell.classList.remove('vibrar'), 3800);
+  if(bell){ bell.classList.add('vibrar'); setTimeout(()=>bell.classList.remove('vibrar'), 3800); }
+  const bc = document.getElementById('bellCount');
+  if(bc){ bc.classList.remove('pulse'); void bc.offsetWidth; bc.classList.add('pulse'); }
+  try{ if(navigator.vibrate) navigator.vibrate([300,150,300,150,500]); }catch(e){}
+  desbloquearAudio();
   try{
-    const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    ctx.resume();
+    let a = document.getElementById('audioPedido');
+    if(a){ a.currentTime = 0; a.volume = 1; a.play().catch(()=>{}); }
+  }catch(e){}
+  try{
+    const ctx = audioCtxGlobal || new (window.AudioContext||window.webkitAudioContext)();
+    audioCtxGlobal = ctx; ctx.resume();
     const osc1 = ctx.createOscillator(); const osc2 = ctx.createOscillator(); const gain = ctx.createGain();
     osc1.type='sine'; osc2.type='triangle';
     osc1.frequency.setValueAtTime(900, ctx.currentTime);
@@ -164,11 +176,15 @@ function sonarDoloYa(){
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime+0.8);
     osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
     osc1.start(); osc2.start(); osc1.stop(ctx.currentTime+0.8); osc2.stop(ctx.currentTime+0.8);
-  }catch{}
-  try{ const audio=new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg"); audio.volume=1; audio.play().catch(()=>{});}catch{}
-  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance("Nuevo pedido DoloYa asignado"); u.lang='es-MX'; u.volume=1; speechSynthesis.speak(u);}catch{}
+  }catch(e){}
+  try{ const audio=new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg"); audio.volume=1; audio.play().catch(()=>{});}catch(e){}
+  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance("Nuevo pedido DoloYa asignado"); u.lang='es-MX'; u.volume=1; speechSynthesis.speak(u);}catch(e){}
 }
-
+document.getElementById('bell').addEventListener('click', function(){
+  this.classList.remove('vibrar');
+  try{ if(navigator.vibrate) navigator.vibrate(0); }catch(e){}
+  window.scrollTo({top:0, behavior:'smooth'});
+});
 function mapEstado(p){
   const e = (p.estado||'').toLowerCase();
   if(['enviado_a_repartidor','activo','nuevo','pendiente'].includes(e)) return 'activo';
@@ -179,7 +195,6 @@ function mapEstado(p){
   if(['cancelado'].includes(e)) return 'cancelado';
   return 'activo';
 }
-
 function getPaso(estado){
   const e=(estado||'').toLowerCase();
   if(['enviado_a_repartidor','activo','nuevo','pendiente','aceptado'].includes(e)) return 0;
@@ -190,23 +205,19 @@ function getPaso(estado){
   if(e==='cancelado') return 5;
   return 0;
 }
-
 function render(){
   const miosTodos = pedidos.filter(p=>{
     const esDeJose = p.repartidorId===sesion.usuario || p.repartidorId==='Jose' || p.repartidorNombre===sesion.nombre || p.repartidorNombre==='Jose';
     const yaFueEnviado = !['nuevo','listo_para_admin','listo','sin_enviar','',undefined].includes(p.estado);
     return esDeJose && yaFueEnviado;
   });
-
   const mios = miosTodos.filter(p=>{
     const e=(p.estado||'').toLowerCase();
     return !['finalizado','entregado','cancelado'].includes(e);
   });
-  
   const countsTodos = {todos:mios.length, activo:0, ir_a_recoger:0, recogido:0, ir_a_entregar:0, entregado:0, cancelado:0};
   mios.forEach(p=>{ const m=mapEstado(p); if(countsTodos[m]!==undefined) countsTodos[m]++; });
-  const bellTotal = countsTodos.activo + countsTodos.ir_a_recoger;
-
+  const bellTotal = mios.length;
   document.getElementById('c-todos').textContent=countsTodos.todos;
   document.getElementById('c-activo').textContent=countsTodos.activo;
   document.getElementById('c-ir_a_recoger').textContent=countsTodos.ir_a_recoger;
@@ -215,19 +226,15 @@ function render(){
   document.getElementById('c-entregado').textContent=0;
   document.getElementById('c-cancelado').textContent=0;
   document.getElementById('bellCount').textContent=bellTotal;
-
   if(!primero && bellTotal>ultimoCount) sonarDoloYa();
   ultimoCount = bellTotal;
   primero=false;
-
   const filtrados = mios;
   const lista = document.getElementById('lista');
-  
   if(filtrados.length===0){
     lista.innerHTML=`<div style="text-align:center;padding:60px 20px;color:#64748b;font-weight:600">No hay pedidos activos</div>`;
     return;
   }
-
   lista.innerHTML = filtrados.map(p=>{
     const codigoReal = p.codigo || p.id;
     const cliente = p.cliente?.nombre || p.nombre || p.detalles?.nombre || 'Cliente';
@@ -240,8 +247,6 @@ function render(){
     const dirEntrega = p.cliente?.direccion || p.direccionEntrega || 'Calle Independencia #124';
     const colEntrega = p.cliente?.colonia || 'Col. Centro';
     const prods = p.productos || [];
-    
-    // ===== CORREGIDO - DECIMALES REALES PARA REPARTIDOR =====
     let costoCalculado = 0;
     if(prods && prods.length>0){
       costoCalculado = prods.reduce((acc, it)=>{
@@ -256,20 +261,17 @@ function render(){
     const totalPedidoConTarifa = parseFloat((costoProdBase + tarifaServicio).toFixed(2));
     const costoEnvio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? 0);
     const totalFinal = parseFloat((totalPedidoConTarifa + costoEnvio).toFixed(2));
-    
     let tsSec=0; let horaStr='02:07 p.m.';
     if(p.enviadoARepartidorEn?.seconds) tsSec=p.enviadoARepartidorEn.seconds;
     else if(p.timestamp?.seconds) tsSec=p.timestamp.seconds;
     else if(p.timestampAdmin?.seconds) tsSec=p.timestampAdmin.seconds;
     if(tsSec) horaStr=new Date(tsSec*1000).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
     const tiempo = calcularTiempoReal(tsSec);
-
     const paso = getPaso(p.estado);
     let clsRecoger = paso===0 ? 'verde-activo' : paso>0 ? 'gris-hecho' : 'gris-bloqueado';
     let clsTengo = paso===1 ? 'verde-activo' : paso>1 ? 'gris-hecho' : 'gris-bloqueado';
     let clsEntregar = paso===2 ? 'verde-activo' : paso>2 ? 'gris-hecho' : 'gris-bloqueado';
     let clsEntregado = paso===3 ? 'verde-activo' : paso>3 ? 'gris-hecho' : 'gris-bloqueado';
-
     return `
     <div class="card" id="card-${p.id}">
       <div class="card-top">
@@ -291,7 +293,6 @@ function render(){
       <div class="col prod"><b>Productos:</b><div class="prod-list">${prods.length>0 ? prods.map(pr=>`<div><span>${pr.nombre||pr.name}</span><span>x${pr.cantidad||1}</span></div>`).join('') : `<div><span>Hamburguesa clásica</span><span>x1</span></div>`}</div></div>
       <div class="col tot"><b>Total del pedido</b><div class="val">$${totalPedidoConTarifa.toFixed(2)} MXN</div><div class="ship">Envío<br>$${costoEnvio.toFixed(2)} MXN</div><div class="total"><small>Total</small><strong>$${totalFinal.toFixed(2)} MXN</strong></div></div>
       <div class="col entrega"><b>Entrega en:</b><span>${dirEntrega}<br>${colEntrega}</span></div>
-      
       <div class="card-bottom">
         <button class="btn-bottom ${clsRecoger}" onclick="accion('${p.id}','ir_a_recoger')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Ir a recoger</button>
         <button class="btn-bottom ${clsTengo}" onclick="accion('${p.id}','recogido')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Lo tengo</button>
@@ -299,7 +300,6 @@ function render(){
         <button class="btn-bottom ${clsEntregado}" onclick="accion('${p.id}','entregado')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg> Entregado</button>
         <button class="btn-bottom cancelado-rojo" onclick="abrirCancelar('${p.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancelado</button>
       </div>
-
       <div class="card-overlay" id="overlay-cancel-${p.id}">
         <div class="overlay-cancel">
           <div class="cancel-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E30613" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ¿Por qué cancelas?</div>
@@ -319,13 +319,10 @@ function render(){
           </div>
         </div>
       </div>
-
     </div>`;
   }).join('');
 }
-
 window.filtrar = (f)=>{ filtro=f; document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.f===f)); render(); }
-
 window.abrirCancelar = (id)=>{ document.getElementById('overlay-cancel-'+id)?.classList.add('open'); }
 window.cerrarCancelar = (id)=>{
   document.getElementById('overlay-cancel-'+id)?.classList.remove('open');
@@ -361,58 +358,23 @@ window.confirmarCancelar = async (id)=>{
     detalle = txt.value.trim();
     if(detalle.length<3){ alert('Explica el motivo'); return; }
   }
-  
   const pedidoActual = pedidos.find(p=>p.id===id);
-  
   const cardEl = document.getElementById('card-'+id);
   if(cardEl){ cardEl.style.transition='all .25s'; cardEl.style.opacity='0'; cardEl.style.transform='scale(0.96)'; }
-  setTimeout(()=>{
-    pedidos = pedidos.filter(p=>p.id!==id);
-    render();
-  },250);
+  setTimeout(()=>{ pedidos = pedidos.filter(p=>p.id!==id); render(); },250);
   cerrarCancelar(id);
-
   try{
-    await updateDoc(doc(db,"pedidos_admin",id),{
-      estado:'cancelado',
-      estadoRepartidor:'cancelado',
-      motivoCancelacion: motivo,
-      detalleCancelacion: detalle,
-      canceladoPor: sesion.usuario,
-      canceladoPorNombre: sesion.nombre,
-      canceladoEn: new Date(),
-      actualizadoEn: new Date().toISOString()
-    });
-
+    await updateDoc(doc(db,"pedidos_admin",id),{ estado:'cancelado', estadoRepartidor:'cancelado', motivoCancelacion: motivo, detalleCancelacion: detalle, canceladoPor: sesion.usuario, canceladoPorNombre: sesion.nombre, canceladoEn: new Date(), actualizadoEn: new Date().toISOString() });
     if(pedidoActual){
-      await setDoc(doc(dbHistorial, "pedidos_cancelados", id), {
-        ...pedidoActual,
-        estado:'cancelado',
-        estadoOriginal: pedidoActual.estado,
-        motivoCancelacion: motivo,
-        detalleCancelacion: detalle,
-        canceladoPor: sesion.usuario,
-        canceladoPorNombre: sesion.nombre,
-        canceladoEn: new Date(),
-        guardadoDesde: 'doloya-confirmacion',
-        tipo: 'cancelado'
-      });
+      await setDoc(doc(dbHistorial, "pedidos_cancelados", id), { ...pedidoActual, estado:'cancelado', estadoOriginal: pedidoActual.estado, motivoCancelacion: motivo, detalleCancelacion: detalle, canceladoPor: sesion.usuario, canceladoPorNombre: sesion.nombre, canceladoEn: new Date(), guardadoDesde: 'doloya-confirmacion', tipo: 'cancelado' });
     }
-
     try{
       const otro = doc(db,"pedidos",id);
       const snap = await getDoc(otro);
-      if(snap.exists()){
-        await updateDoc(otro,{estado:'cancelado', motivoCancelacion:motivo, detalleCancelacion:detalle});
-      }
+      if(snap.exists()){ await updateDoc(otro,{estado:'cancelado', motivoCancelacion:motivo, detalleCancelacion:detalle}); }
     }catch{}
-
-  }catch(e){ 
-    console.error(e);
-    alert('Error al cancelar: '+e.message); 
-  }
+  }catch(e){ console.error(e); alert('Error al cancelar: '+e.message); }
 }
-
 window.accion = async (id, estado)=>{
   let real = estado;
   if(estado==='ir_a_recoger') real='ir_a_recoger';
@@ -421,33 +383,22 @@ window.accion = async (id, estado)=>{
   if(estado==='entregado') real='finalizado';
   if(estado==='cancelado') real='cancelado';
   try{
-    await updateDoc(doc(db,"pedidos_admin",id),{
-      estado:real,
-      estadoRepartidor:real,
-      actualizadoEn:new Date().toISOString(),
-      actualizadoPor: sesion.usuario
-    });
+    await updateDoc(doc(db,"pedidos_admin",id),{ estado:real, estadoRepartidor:real, actualizadoEn:new Date().toISOString(), actualizadoPor: sesion.usuario });
     try{
       const otro = doc(db,"pedidos",id);
       const snap = await getDoc(otro);
-      if(snap.exists()){
-        await updateDoc(otro,{estado:real, estadoRepartidor:real, actualizadoEn:new Date().toISOString()});
-      }
+      if(snap.exists()){ await updateDoc(otro,{estado:real, estadoRepartidor:real, actualizadoEn:new Date().toISOString()}); }
     }catch{}
   }catch(e){ alert(e.message); }
 }
 window.irRecoger = (dir)=>{ window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`,'_blank'); }
 window.openMaps = (dir)=>{ window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dir)}`,'_blank'); }
 window.llamar = (tel)=>{ if(tel) window.location.href=`tel:${tel}`; else alert('Sin teléfono'); }
-
 setInterval(()=>{
   document.querySelectorAll('.tiempo-real').forEach(el=>{
     const ts=parseInt(el.dataset.ts||0); if(ts){ const t=calcularTiempoReal(ts); el.textContent=t.texto; el.className='tiempo-real '+t.clase; }
   });
 },1000);
-
-document.addEventListener('click', function unlock(){ try{ const ctx=new (window.AudioContext||window.webkitAudioContext)(); ctx.resume(); }catch{}; document.removeEventListener('click', unlock); }, {once:true});
-
 onSnapshot(collection(db,"pedidos_admin"), (snap)=>{
   pedidos = snap.docs.map(d=>({id:d.id, ...d.data()}));
   render();
