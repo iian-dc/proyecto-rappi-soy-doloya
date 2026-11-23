@@ -71,8 +71,8 @@ tbody tr:hover{background:#fef2f2}
     <div class="stats">
       <div class="stat"><small>Entregados</small><b id="statEntregados">0</b><span>pedidos entregados</span></div>
       <div class="stat"><small>Total envío</small><b id="statTotalEnvio">$0.00</b><span>suma de envíos</span></div>
-      <div class="stat naranja"><small>Por pagar</small><b id="statPorPagar">$0.00</b><span id="porPagarLabel">por pagar al repartidor</span></div>
-      <div class="stat verde"><small>Ya pagado</small><b id="statPagado">$0.00</b><span id="pagadoLabel">ya pagado</span></div>
+      <div class="stat naranja"><small>Por pagar</small><b id="statPorPagar">$0.00</b><span>pendiente por pagar</span></div>
+      <div class="stat verde"><small>Ya pagado</small><b id="statPagado">$0.00</b><span>ya pagado</span></div>
     </div>
     <div class="filtros">
       <button class="f-btn active" id="fTodos" onclick="setFiltro('todos')">Todos <small id="cTodos">0</small></button>
@@ -89,7 +89,7 @@ tbody tr:hover{background:#fef2f2}
               <th>N° Pedido</th>
               <th>Total Envío</th>
               <th>% Entrega</th>
-              <th>Lo que le pagas al repartidor</th>
+              <th>Ingresos</th>
               <th>Estado de pago</th>
             </tr>
           </thead>
@@ -132,15 +132,11 @@ let pedidosAll = [];
 let filtroActual = 'todos';
 let watchId = null;
 let conectado = false;
-// CADA REPARTIDOR TIENE SU % - SE LEE DE SU PERFIL, NO FIJO
 let PORCENTAJE_REPARTIDOR = parseFloat(sesion.porcentaje ?? sesion.porcentajeEntrega ?? sesion.porcentajeRepartidor ?? 80);
 function aplicarPorcentaje(){
   document.getElementById('porcLabel').textContent = 'este repartidor gana el ' + PORCENTAJE_REPARTIDOR + '% del envío';
-  document.getElementById('porPagarLabel').textContent = PORCENTAJE_REPARTIDOR + '% por pagar al repartidor';
-  document.getElementById('pagadoLabel').textContent = PORCENTAJE_REPARTIDOR + '% ya pagado';
   pintarTabla();
 }
-// 1. Lee el % del repartidor conectado desde Realtime Database: repartidores/Jose/porcentaje
 onValue(ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/porcentaje`), (snap)=>{
   if(snap.exists()){
     let v = parseFloat(snap.val());
@@ -148,8 +144,6 @@ onValue(ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/porcentaje`), (snap)
   }
   aplicarPorcentaje();
 });
-// 2. También lee el % que venga guardado en el mismo pedido, si ese pedido ya trae su %
-// Eso es por si a Jose le cambiaste el % después, el pedido viejo queda con su % viejo
 function porcentajeDePedido(p){
   let v = parseFloat(p.porcentajeEntrega ?? p.porcentajeRepartidor ?? p.porcentaje ?? p.porcentajePago ?? NaN);
   if(!isNaN(v) && v > 0 && v <= 100) return v;
@@ -245,7 +239,7 @@ function pintarTabla(){
     let porc = porcentajeDePedido(p);
     let aDar = parseFloat((envio * porc / 100).toFixed(2));
     let pagado = esPagado(p);
-    let pill = pagado ? `<button class="pill pill-pagado" onclick="cambiarPago('${p.id}', false)">✓ Ya pagado</button>` : `<button class="pill pill-pendiente" onclick="cambiarPago('${p.id}', true)">⏳ No se lo he pagado</button>`;
+    let pill = pagado ? `<button class="pill pill-pagado" onclick="cambiarPago('${p.id}', false)">✓ Ya pagado</button>` : `<button class="pill pill-pendiente" onclick="cambiarPago('${p.id}', true)">⏳ Pendiente por pagar</button>`;
     return `<tr>
       <td>${formatearFecha(p)}</td>
       <td><b>#${numeroPedido}</b></td>
