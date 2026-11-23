@@ -100,6 +100,15 @@ const configAdmin = {
   messagingSenderId: "832228761099",
   appId: "1:832228761099:web:ddd4b6a0ee0d7f0494b10e"
 };
+const configHistorial = {
+  apiKey: "AIzaSyCRx4B7mO444s0yU-WTnsqMjBHDWX4IRv8",
+  authDomain: "doloya-historial.firebaseapp.com",
+  projectId: "doloya-historial",
+  storageBucket: "doloya-historial.firebasestorage.app",
+  messagingSenderId: "41258055121",
+  appId: "1:41258055121:web:19a443786320e04ebd9cf0",
+  measurementId: "G-ENELTJ1X6R"
+};
 const configRepa = {
   apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
   authDomain: "doloya-repartidores.firebaseapp.com",
@@ -110,13 +119,17 @@ const configRepa = {
   appId: "1:308893983803:web:fe2b85c80f3a203de9a81e"
 };
 const appAdmin = initializeApp(configAdmin, "admin");
+const appHistorial = initializeApp(configHistorial, "historial");
 const appRepa = initializeApp(configRepa, "repa");
 const dbAdmin = getFirestore(appAdmin);
+const dbHistorial = getFirestore(appHistorial);
 const dbRepa = getDatabase(appRepa);
 let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
 document.getElementById('repaName').textContent = sesion.nombre || sesion.usuario || 'Repartidor';
 let conectado = false;
 let pedidosAll = [];
+let entregadosHist = [];
+let canceladosHist = [];
 let filtroActual = 'todos';
 let watchId = null;
 const rRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/conectado`);
@@ -157,16 +170,23 @@ function normalizarEstado(e){
   return e;
 }
 function formatearFecha(p){
-  let f = p.fecha || p.fechaEntrega || p.createdAt || p.timestamp || p.fechaCreacion;
+  let f = p.actualizadoEn || p.fecha || p.fechaEntrega || p.createdAt || p.timestamp || p.fechaCreacion;
   if(!f) return '-';
-  if(f.toDate) f = f.toDate();
+  if(f && f.toDate) f = f.toDate();
   else if(typeof f === 'number') f = new Date(f);
   else f = new Date(f);
   if(isNaN(f.getTime())) return '-';
   return f.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + f.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
 }
+function esMio(p){
+  return (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose" || p.repartidor===sesion.usuario || p.repartidor===sesion.nombre || p.actualizadoPor===sesion.nombre || p.actualizadoPor===sesion.usuario || p.nombre===sesion.nombre);
+}
+function combinarHistorial(){
+  pedidosAll = [...entregadosHist, ...canceladosHist];
+  pintarTabla();
+}
 function pintarTabla(){
-  let mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose" || p.repartidor===sesion.usuario || p.repartidor===sesion.nombre));
+  let mios = pedidosAll.filter(esMio);
   let historial = mios.filter(p=>{ let e = normalizarEstado(p.estado); return e==='entregado' || e==='cancelado'; });
   let entregados = historial.filter(p=> normalizarEstado(p.estado)==='entregado');
   let cancelados = historial.filter(p=> normalizarEstado(p.estado)==='cancelado');
@@ -183,8 +203,8 @@ function pintarTabla(){
     return;
   }
   lista = [...lista].sort((a,b)=>{
-    let fa = a.fecha || a.createdAt || a.timestamp || 0;
-    let fb = b.fecha || b.createdAt || b.timestamp || 0;
+    let fa = a.actualizadoEn || a.fecha || a.createdAt || a.timestamp || 0;
+    let fb = b.actualizadoEn || b.fecha || b.createdAt || b.timestamp || 0;
     if(fa && fa.toDate) fa = fa.toDate().getTime();
     if(fb && fb.toDate) fb = fb.toDate().getTime();
     return new Date(fb) - new Date(fa);
@@ -193,15 +213,15 @@ function pintarTabla(){
     let e = normalizarEstado(p.estado);
     let pill = e==='entregado' ? '<span class="pill pill-entregado">Entregado</span>' : '<span class="pill pill-cancelado">Cancelado</span>';
     let numeroPedido = p.codigo || p.numeroPedido || p.numero || p.numPedido || p.folio || '-';
-    let cliente = p.cliente?.nombre || p.clienteNombre || p.cliente || p.nombreCliente || p.detalles?.nombre || p.nombre || '-';
+    let cliente = p.cliente?.nombre || p.clienteNombre || p.cliente || p.nombreCliente || p.detalles?.nombre || '-';
     if(typeof cliente === 'object') cliente = cliente.nombre || '-';
-    let negocio = p.restaurante?.nombre || p.tienda?.nombre || p.negocio?.nombre || p.restauranteNombre || p.negocio || p.tiendaNombre || '-';
+    let negocio = p.restaurante?.nombre || p.tienda?.nombre || p.negocio?.nombre || p.restauranteNombre || p.negocio || p.tiendaNombre || p.negocioNombre || '-';
     if(typeof negocio === 'object') negocio = negocio.nombre || '-';
     let dir = p.cliente?.direccion || p.direccionEntrega || p.direccion || p.cliente?.direccionEntrega || p.address || '-';
     if(typeof dir === 'object') dir = dir.direccion || '-';
-    let totalEnvio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? 0);
+    let totalEnvio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? p.totales?.totalEnvio ?? 0);
     let totalTxt = '$' + totalEnvio.toFixed(2);
-    let repa = p.repartidorNombre || p.repartidor || sesion.nombre || '-';
+    let repa = p.repartidorNombre || p.repartidor || p.actualizadoPor || p.nombre || sesion.nombre || '-';
     return `<tr>
       <td>${formatearFecha(p)}</td>
       <td><b>#${numeroPedido}</b></td>
@@ -214,12 +234,21 @@ function pintarTabla(){
     </tr>`;
   }).join('');
 }
+// HISTORIAL LEE DE DONDE SE GUARDA LO ENTREGADO Y LO CANCELADO - AHÍ SE QUEDA ALMACENADO Y NO SE BORRA
+onSnapshot(collection(dbHistorial,"pedidos_entregados"), (snap)=>{
+  entregadosHist = snap.docs.map(d=>({id:d.id, ...d.data(), estado: d.data().estado || 'entregado', _coleccion: 'pedidos_entregados'}));
+  combinarHistorial();
+});
+onSnapshot(collection(dbHistorial,"pedidos_cancelados"), (snap)=>{
+  canceladosHist = snap.docs.map(d=>({id:d.id, ...d.data(), estado: d.data().estado || 'cancelado', _coleccion: 'pedidos_cancelados'}));
+  combinarHistorial();
+});
+// La campanita sí sigue leyendo los nuevos de pedidos_admin, eso no se toca
 onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
-  pedidosAll = snap.docs.map(d=>({id:d.id, ...d.data()}));
-  const mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose") );
+  const todos = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  const mios = todos.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose"));
   const nuevos = mios.filter(p=>p.estado==='enviado_a_repartidor');
   document.getElementById('bellCount').textContent = nuevos.length;
-  pintarTabla();
 });
 </script>
 </body>
