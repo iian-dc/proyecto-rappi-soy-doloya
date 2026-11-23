@@ -49,8 +49,6 @@ select.input{appearance:none}
 .msg.err{color:#C00612;display:block}
 .nota{font-size:11px;color:#64748b;font-weight:600;line-height:1.4;margin-top:10px;text-align:center}
 .hidden{display:none!important}
-
-/* CELULAR - TODO MAS REDUCIDO Y ORGANIZADO */
 @media(max-width:768px){
   .topbar{height:52px;padding:0 12px;gap:10px}
   .btn-x-top{width:32px;height:32px;min-width:32px;font-size:15px}
@@ -80,7 +78,6 @@ select.input{appearance:none}
 </style>
 </head>
 <body>
-
 <div class="main">
   <div class="topbar">
     <button class="btn-x-top" onclick="volverPanel()" title="Volver">✕</button>
@@ -94,7 +91,6 @@ select.input{appearance:none}
       <div class="avatar-cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
     </div>
   </div>
-
   <div class="content">
     <div class="card">
       <h2>Foto de perfil</h2>
@@ -105,14 +101,11 @@ select.input{appearance:none}
         <button class="btn-foto btn-foto-gris" onclick="quitarFoto()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Quitar foto</button>
       </div>
     </div>
-
     <div class="card">
       <h2>Información</h2>
       <p class="sub">Tu nombre no se puede modificar, el resto sí.</p>
-
       <label class="label">Nombre de repartidor</label>
       <input class="input" id="nombreRepa" readonly value="Jose" placeholder="Nombre de repartidor">
-
       <label class="label">Tipo de vehículo</label>
       <select class="input" id="vehiculo">
         <option value="Moto">Moto</option>
@@ -120,7 +113,6 @@ select.input{appearance:none}
         <option value="Carro">Carro</option>
         <option value="A pie">A pie</option>
       </select>
-
       <label class="label">INE - Subir foto desde tu celular</label>
       <div class="ine-box" onclick="document.getElementById('inputINE').click()">
         <img id="inePreview" src="" alt="INE">
@@ -129,31 +121,25 @@ select.input{appearance:none}
       </div>
       <input type="file" id="inputINE" accept="image/*" style="display:none">
     </div>
-
     <div class="card">
       <h2>Usuario y contraseña</h2>
       <p class="sub">Puedes modificarlos en cualquier momento.</p>
-
       <label class="label">Usuario</label>
       <input class="input" id="usuario" value="Jose" placeholder="Tu usuario">
-
       <label class="label">Contraseña</label>
       <div class="input-row">
         <input class="input" id="password" type="password" value="" placeholder="Nueva contraseña">
         <button class="btn-ojo" onclick="verPass()" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
-
       <button class="btn-guardar" id="btnGuardar" onclick="guardarPerfil()">Guardar cambios</button>
       <div class="msg" id="msg"></div>
       <p class="nota">Al cambiar tu usuario o contraseña, la próxima vez entra con los datos nuevos.</p>
     </div>
   </div>
 </div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-
+import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
 const configRepa = {
   apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
   authDomain: "doloya-repartidores.firebaseapp.com",
@@ -165,27 +151,20 @@ const configRepa = {
 };
 const appRepa = initializeApp(configRepa, "repa");
 const dbRepa = getDatabase(appRepa);
-
-let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
+let sesion = JSON.parse(localStorage.getItem("repartidor_sesion") || '{"usuario":"Jose","nombre":"Jose"}');
+let claveRepa = sesion.usuario || 'Jose';
 let perfil = { nombre: sesion.nombre || sesion.usuario || 'Jose', usuario: sesion.usuario || 'Jose', vehiculo: 'Moto', foto: '', ine: '', password: '' };
-
 window.volverPanel = ()=>{ window.location.href='panelrepa.html'; };
-
 function pintarAvatar(){
   const img = document.getElementById('avatarImg');
   const letra = document.getElementById('avatarLetra');
-  if(perfil.foto){
-    img.src = perfil.foto; img.style.display='block'; letra.style.display='none';
-  }else{
-    img.style.display='none'; letra.style.display='flex';
-    letra.textContent = (perfil.nombre||'J').trim().charAt(0).toUpperCase();
-  }
+  if(perfil.foto){ img.src = perfil.foto; img.style.display='block'; letra.style.display='none'; }
+  else{ img.style.display='none'; letra.style.display='flex'; letra.textContent = (perfil.nombre||'J').trim().charAt(0).toUpperCase(); }
   const ineImg = document.getElementById('inePreview');
   const ineTxt = document.getElementById('ineTxt');
-  if(perfil.ine){ ineImg.src = perfil.ine; ineImg.style.display='block'; ineTxt.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><polyline points="20 6 9 17 4 12"/></svg> INE subida - Toca para cambiarla'; }
-  else{ ineImg.style.display='none'; ineTxt.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Toca aquí para subir tu INE'; }
+  if(perfil.ine){ ineImg.src = perfil.ine; ineImg.style.display='block'; ineTxt.innerHTML = 'INE subida - Toca para cambiarla'; }
+  else{ ineImg.style.display='none'; ineTxt.innerHTML = 'Toca aqui para subir tu INE'; }
 }
-
 function llenarCampos(){
   document.getElementById('nombreRepa').value = perfil.nombre || '';
   document.getElementById('vehiculo').value = perfil.vehiculo || 'Moto';
@@ -193,25 +172,25 @@ function llenarCampos(){
   document.getElementById('password').value = perfil.password || '';
   pintarAvatar();
 }
-
-const perfilRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/perfil`);
-onValue(perfilRef, (snap)=>{
+const repaRef = ref(dbRepa, 'repartidores/' + claveRepa);
+onValue(repaRef, (snap)=>{
   if(snap.exists()){
     let d = snap.val();
-    perfil = { ...perfil, ...d };
+    if(d.nombre) perfil.nombre = d.nombre;
+    if(d.usuario) perfil.usuario = d.usuario;
+    if(d.vehiculo) perfil.vehiculo = d.vehiculo;
+    if(d.foto !== undefined) perfil.foto = d.foto || '';
+    if(d.ine !== undefined) perfil.ine = d.ine || '';
+    if(d.password !== undefined) perfil.password = d.password || '';
     if(sesion.nombre) perfil.nombre = sesion.nombre;
     llenarCampos();
-  }else{
-    llenarCampos();
-  }
+  } else { llenarCampos(); }
 });
-
 function leerImagen(file, cb){
   const r = new FileReader();
   r.onload = (e)=> cb(e.target.result);
   r.readAsDataURL(file);
 }
-
 document.getElementById('inputFoto').addEventListener('change', (e)=>{
   const f = e.target.files[0]; if(!f) return;
   leerImagen(f, async (dataUrl)=>{
@@ -221,7 +200,6 @@ document.getElementById('inputFoto').addEventListener('change', (e)=>{
     mostrarMsg('Foto actualizada', true);
   });
 });
-
 document.getElementById('inputINE').addEventListener('change', (e)=>{
   const f = e.target.files[0]; if(!f) return;
   leerImagen(f, async (dataUrl)=>{
@@ -231,23 +209,19 @@ document.getElementById('inputINE').addEventListener('change', (e)=>{
     mostrarMsg('INE subida', true);
   });
 });
-
 window.quitarFoto = async ()=>{
   perfil.foto = '';
   pintarAvatar();
   await guardarEnFirebase(true);
   mostrarMsg('Foto quitada', true);
 };
-
 window.verPass = ()=>{
   const p = document.getElementById('password');
   p.type = p.type === 'password' ? 'text' : 'password';
 };
-
 async function guardarEnFirebase(silencioso){
   try{
-    await set(perfilRef, {
-      nombre: perfil.nombre,
+    await update(repaRef, {
       usuario: perfil.usuario,
       vehiculo: perfil.vehiculo,
       foto: perfil.foto || '',
@@ -264,7 +238,6 @@ async function guardarEnFirebase(silencioso){
     console.log(e);
   }
 }
-
 window.guardarPerfil = async ()=>{
   const btn = document.getElementById('btnGuardar');
   let nuevoUsuario = document.getElementById('usuario').value.trim();
@@ -276,12 +249,8 @@ window.guardarPerfil = async ()=>{
   perfil.password = nuevaPass;
   perfil.vehiculo = document.getElementById('vehiculo').value;
   await guardarEnFirebase(false);
-  if(nuevoUsuario !== sesion.usuario){
-    try{ await set(ref(dbRepa, `repartidores/${nuevoUsuario}/perfil`), { nombre: perfil.nombre, usuario: perfil.usuario, vehiculo: perfil.vehiculo, foto: perfil.foto||'', ine: perfil.ine||'', password: perfil.password||'', actualizado: new Date().toISOString() }); }catch{}
-  }
   btn.disabled = false; btn.textContent = 'Guardar cambios';
 };
-
 function mostrarMsg(txt, ok){
   const m = document.getElementById('msg');
   m.textContent = txt;
