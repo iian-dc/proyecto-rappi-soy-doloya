@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resumen de Ingresos - DoloYa</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{height:100vh;display:flex;flex-direction:column;background:#C00612;overflow:hidden}
+.main{flex:1;position:relative;background:#C00612;display:flex;flex-direction:column;min-height:0}
+.topbar{height:58px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 18px;flex-shrink:0}
+.btn-x-top{width:38px;height:38px;min-width:38px;background:white;color:#C00612;border:none;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.bell{position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.bell-count{position:absolute;top:-2px;right:-2px;background:white;color:#C00612;min-width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.content{flex:1;overflow-y:auto;padding:14px;position:relative}
+.hist-header{background:white;border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.hist-header h1{font-size:22px;font-weight:900;color:#0f172a}
+.hist-header p{font-size:12px;color:#64748b;font-weight:600;margin-top:1px}
+.hist-header .repa-name{margin-left:auto;background:#fef2f2;color:#C00612;padding:7px 14px;border-radius:999px;font-size:12px;font-weight:800}
+/* TARJETAS ESTADISTICAS */
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:white;border-radius:16px;padding:14px}
+.stat small{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase}
+.stat b{display:block;font-size:22px;font-weight:900;color:#0f172a;margin-top:4px}
+.stat span{font-size:11px;font-weight:700;color:#64748b}
+.stat.verde b{color:#16a34a}
+.stat.rojo b{color:#C00612}
+.stat.naranja b{color:#EA580C}
+.filtros{background:white;border-radius:16px;padding:12px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.f-btn{border:1.5px solid #e2e8f0;background:#f8fafc;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:800;color:#334155;cursor:pointer}
+.f-btn.active{background:#C00612;color:white;border-color:#C00612}
+.f-btn small{background:white;color:#C00612;padding:2px 7px;border-radius:999px;margin-left:6px;font-size:11px}
+.f-btn.active small{background:white;color:#C00612}
+.tabla-box{background:white;border-radius:16px;overflow:hidden;padding-bottom:8px}
+.tabla-title{padding:14px 16px;font-size:14px;font-weight:800;color:#0f172a;border-bottom:1px solid #eef2f7;display:flex;justify-content:space-between}
+.tabla-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:720px;font-size:13px}
+thead th{background:#f8fafc;color:#334155;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;text-align:left;padding:12px 14px;border-bottom:1.5px solid #e2e8f0;white-space:nowrap}
+tbody td{padding:12px 14px;border-bottom:1px solid #f1f5f9;color:#334155;font-weight:600;vertical-align:middle;white-space:nowrap}
+tbody tr:hover{background:#fef2f2}
+.pill{padding:5px 10px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer;border:none}
+.pill-pagado{background:#dcfce7;color:#166534}
+.pill-pendiente{background:#fef3c7;color:#92400e}
+.empty{padding:30px;text-align:center;color:#64748b;font-weight:600;font-size:13px}
+@media(max-width:768px){
+  .stats{grid-template-columns:1fr 1fr}
+  .hist-header h1{font-size:18px}
+  .hist-header .repa-name{display:none}
+  .content{padding-bottom:20px}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="main">
+  <div class="topbar">
+    <button class="btn-x-top" onclick="volverPanel()" title="Volver">✕</button>
+    <div class="bell" id="bell">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 6 5 6 9H0s6-2 6-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="bell-count" id="bellCount">0</span>
+    </div>
+  </div>
+  <div class="content" id="content">
+    <div class="hist-header">
+      <div>
+        <h1>Resumen de ingresos</h1>
+        <p>Solo pedidos entregados - dato estadístico</p>
+      </div>
+      <div class="repa-name" id="repaName">Repartidor</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><small>Entregados</small><b id="statEntregados">0</b><span>pedidos entregados</span></div>
+      <div class="stat"><small>Total envío</small><b id="statTotalEnvio">$0.00</b><span>suma de envíos</span></div>
+      <div class="stat naranja"><small>Por pagar</small><b id="statPorPagar">$0.00</b><span>lo que te tiene que dar</span></div>
+      <div class="stat verde"><small>Ya pagado</small><b id="statPagado">$0.00</b><span>ya se lo pagaste</span></div>
+    </div>
+
+    <div class="filtros">
+      <button class="f-btn active" id="fTodos" onclick="setFiltro('todos')">Todos <small id="cTodos">0</small></button>
+      <button class="f-btn" id="fPendiente" onclick="setFiltro('pendiente')">Por pagar <small id="cPendiente">0</small></button>
+      <button class="f-btn" id="fPagado" onclick="setFiltro('pagado')">Ya pagado <small id="cPagado">0</small></button>
+    </div>
+
+    <div class="tabla-box">
+      <div class="tabla-title"><span>Resumen de ingresos</span><span id="totalLabel">0 pedidos</span></div>
+      <div class="tabla-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>N° Pedido</th>
+              <th>Total Envío</th>
+              <th>% Entrega</th>
+              <th>Lo que me tiene que dar</th>
+              <th>Estado de pago</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyResumen">
+            <tr><td colspan="6" class="empty">Cargando tu resumen...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+const configAdmin = {
+  apiKey: "AIzaSyDLKngPyi_SWAXEQwdrHO5h8L8OufulAR4",
+  authDomain: "doloya-confirmacion.firebaseapp.com",
+  projectId: "doloya-confirmacion",
+  storageBucket: "doloya-confirmacion.firebasestorage.app",
+  messagingSenderId: "832228761099",
+  appId: "1:832228761099:web:ddd4b6a0ee0d7f0494b10e"
+};
+const configRepa = {
+  apiKey: "AIzaSyCYdy62kQCPEhz1d-Ln9H-sup2iOTYJPwU",
+  authDomain: "doloya-repartidores.firebaseapp.com",
+  databaseURL: "https://doloya-repartidores-default-rtdb.firebaseio.com",
+  projectId: "doloya-repartidores",
+  storageBucket: "doloya-repartidores.firebasestorage.app",
+  messagingSenderId: "308893983803",
+  appId: "1:308893983803:web:fe2b85c80f3a203de9a81e"
+};
+const appAdmin = initializeApp(configAdmin, "admin");
+const appRepa = initializeApp(configRepa, "repa");
+const dbAdmin = getFirestore(appAdmin);
+const dbRepa = getDatabase(appRepa);
+let sesion = JSON.parse(localStorage.getItem("repartidor_sesion")||'{"usuario":"Jose","nombre":"Jose"}');
+document.getElementById('repaName').textContent = sesion.nombre || sesion.usuario || 'Repartidor';
+let pedidosAll = [];
+let filtroActual = 'todos';
+let watchId = null;
+let conectado = false;
+const rRef = ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/conectado`);
+onValue(rRef, (snap)=>{
+  if(snap.exists()) conectado = snap.val()===true; else conectado = false;
+  if(conectado) iniciarUbicacion(); else detenerUbicacion();
+});
+function iniciarUbicacion(){
+  if(!navigator.geolocation) return;
+  if(watchId!==null) return;
+  watchId = navigator.geolocation.watchPosition(async (pos)=>{
+    const {latitude, longitude, accuracy, heading, speed} = pos.coords;
+    const data = { lat: latitude, lng: longitude, latitude, longitude, accuracy: accuracy||0, heading: heading||0, speed: speed||0, timestamp: new Date().toISOString(), conectado: true, usuario: sesion.usuario||'Jose', ultimaActualizacion: Date.now() };
+    try{
+      await set(ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/ubicacion`), data);
+      await set(ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/ubicacionTiempoReal`), data);
+      await set(ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/ultimaUbicacion`), data);
+    }catch(e){ console.log(e.message); }
+  }, (err)=>{ console.log(err); }, { enableHighAccuracy:true, maximumAge:0, timeout:10000 });
+}
+function detenerUbicacion(){
+  if(watchId!==null){ navigator.geolocation.clearWatch(watchId); watchId=null; }
+  set(ref(dbRepa, `repartidores/${sesion.usuario||'Jose'}/ubicacion/conectado`), false).catch(()=>{});
+}
+window.volverPanel = ()=>{ window.location.href='panelrepa.html'; }
+window.setFiltro = (f)=>{
+  filtroActual = f;
+  document.getElementById('fTodos').classList.toggle('active', f==='todos');
+  document.getElementById('fPendiente').classList.toggle('active', f==='pendiente');
+  document.getElementById('fPagado').classList.toggle('active', f==='pagado');
+  pintarTabla();
+}
+function normalizarEstado(e){
+  e = (e||'').toString().toLowerCase().trim();
+  if(e==='entregado' || e==='entregados' || e==='completado' || e==='finalizado') return 'entregado';
+  if(e==='cancelado' || e==='cancelados') return 'cancelado';
+  return e;
+}
+function esPagado(p){
+  if(p.pagado === true || p.estadoPago === 'pagado' || p.pagoRepartidor === 'pagado' || p.pago === 'pagado') return true;
+  return false;
+}
+function formatearFecha(p){
+  let f = p.fecha || p.fechaEntrega || p.createdAt || p.timestamp || p.fechaCreacion;
+  if(!f) return '-';
+  if(f.toDate) f = f.toDate();
+  else if(typeof f === 'number') f = new Date(f);
+  else f = new Date(f);
+  if(isNaN(f.getTime())) return '-';
+  return f.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'}) + ' ' + f.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+}
+function pintarTabla(){
+  let mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose" || p.repartidor===sesion.usuario || p.repartidor===sesion.nombre));
+  let entregados = mios.filter(p=> normalizarEstado(p.estado)==='entregado');
+  let pagados = entregados.filter(p=> esPagado(p));
+  let pendientes = entregados.filter(p=> !esPagado(p));
+  document.getElementById('cTodos').textContent = entregados.length;
+  document.getElementById('cPagado').textContent = pagados.length;
+  document.getElementById('cPendiente').textContent = pendientes.length;
+  let totalEnvioAll = 0, totalPorPagar = 0, totalPagado = 0;
+  entregados.forEach(p=>{
+    let envio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? 0);
+    let porc = parseFloat(p.porcentajeEntrega ?? p.porcentajeRepartidor ?? p.porcentaje ?? 100);
+    let aDar = parseFloat((envio * porc / 100).toFixed(2));
+    totalEnvioAll += envio;
+    if(esPagado(p)) totalPagado += aDar; else totalPorPagar += aDar;
+  });
+  document.getElementById('statEntregados').textContent = entregados.length;
+  document.getElementById('statTotalEnvio').textContent = '$' + totalEnvioAll.toFixed(2);
+  document.getElementById('statPorPagar').textContent = '$' + totalPorPagar.toFixed(2);
+  document.getElementById('statPagado').textContent = '$' + totalPagado.toFixed(2);
+  let lista = entregados;
+  if(filtroActual==='pagado') lista = pagados;
+  if(filtroActual==='pendiente') lista = pendientes;
+  document.getElementById('totalLabel').textContent = lista.length + ' pedidos';
+  const tbody = document.getElementById('tbodyResumen');
+  if(lista.length===0){
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">Aún no tienes pedidos ${filtroActual==='todos'?'entregados':filtroActual==='pagado'?'pagados':'por pagar'}.</td></tr>`;
+    return;
+  }
+  lista = [...lista].sort((a,b)=>{
+    let fa = a.fecha || a.createdAt || a.timestamp || 0;
+    let fb = b.fecha || b.createdAt || b.timestamp || 0;
+    if(fa && fa.toDate) fa = fa.toDate().getTime();
+    if(fb && fb.toDate) fb = fb.toDate().getTime();
+    return new Date(fb) - new Date(fa);
+  });
+  tbody.innerHTML = lista.map(p=>{
+    let numeroPedido = p.codigo || p.numeroPedido || p.numero || p.numPedido || p.folio || '-';
+    let envio = parseFloat(p.totales?.costoEnvio ?? p.totales?.envio ?? p.costoEnvio ?? p.envio ?? p.totalEnvio ?? 0);
+    let porc = parseFloat(p.porcentajeEntrega ?? p.porcentajeRepartidor ?? p.porcentaje ?? 100);
+    let aDar = parseFloat((envio * porc / 100).toFixed(2));
+    let pagado = esPagado(p);
+    let pill = pagado ? `<button class="pill pill-pagado" onclick="cambiarPago('${p.id}', false)">✓ Ya pagado</button>` : `<button class="pill pill-pendiente" onclick="cambiarPago('${p.id}', true)">⏳ No se lo he pagado</button>`;
+    return `<tr>
+      <td>${formatearFecha(p)}</td>
+      <td><b>#${numeroPedido}</b></td>
+      <td><b>$${envio.toFixed(2)}</b></td>
+      <td>${porc}%</td>
+      <td><b>$${aDar.toFixed(2)}</b></td>
+      <td>${pill}</td>
+    </tr>`;
+  }).join('');
+}
+window.cambiarPago = async (id, nuevoValor)=>{
+  try{
+    await updateDoc(doc(dbAdmin, "pedidos_admin", id), { pagado: nuevoValor, estadoPago: nuevoValor ? 'pagado' : 'pendiente', fechaPago: nuevoValor ? new Date() : null });
+  }catch(e){ alert('Error al cambiar pago: ' + e.message); }
+};
+onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
+  pedidosAll = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  const mios = pedidosAll.filter(p=> (p.repartidorId===sesion.usuario || p.repartidorNombre===sesion.nombre || p.repartidorNombre==="Jose" || p.repartidorId==="Jose") );
+  const nuevos = mios.filter(p=>p.estado==='enviado_a_repartidor');
+  document.getElementById('bellCount').textContent = nuevos.length;
+  pintarTabla();
+});
+</script>
+</body>
+</html>
