@@ -12,6 +12,21 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<script>
+// GUARDAR EL AVISO DE INSTALAR DESDE EL PRINCIPIO - PARA QUE SALGA AL DAR CLIC EN EL BOTON
+window.__deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  window.__deferredPrompt = e;
+  var b = document.getElementById('btnInstalar');
+  if(b) b.style.display = 'flex';
+});
+window.addEventListener('appinstalled', function(){
+  window.__deferredPrompt = null;
+  var b = document.getElementById('btnInstalar');
+  if(b) b.style.display = 'none';
+});
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
@@ -358,8 +373,7 @@ window.cerrar = ()=>{
   localStorage.removeItem("repartidor_sesion");
   window.location.href="index.html";
 }
-// INSTALAR APP - SI YA ESTA INSTALADA NO APARECE, SI SE DESINSTALA VUELVE A APARECER
-let deferredPrompt = null;
+// INSTALAR APP - USA EL AVISO GUARDADO EN EL HEAD
 function estaInstalada(){
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
@@ -369,31 +383,28 @@ function actualizarBotonInstalar(){
   if(estaInstalada()){ btn.style.display='none'; return; }
   btn.style.display='flex';
 }
-window.addEventListener('beforeinstallprompt', (e)=>{
-  e.preventDefault();
-  deferredPrompt = e;
-  actualizarBotonInstalar();
-});
-window.addEventListener('appinstalled', ()=>{
-  deferredPrompt = null;
-  actualizarBotonInstalar();
-});
 window.addEventListener('focus', ()=>{ actualizarBotonInstalar(); });
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) actualizarBotonInstalar(); });
 window.instalarApp = async ()=>{
   if(estaInstalada()) return;
-  if(deferredPrompt){
-    deferredPrompt.prompt();
+  let p = window.__deferredPrompt;
+  if(p){
+    p.prompt();
     try{
-      let r = await deferredPrompt.userChoice;
-      if(r && r.outcome === 'dismissed'){
-        // Si le dio cancelar, el boton se queda visible para intentarlo de nuevo
-        deferredPrompt = null;
+      let r = await p.userChoice;
+      if(r && r.outcome === 'accepted'){
+        window.__deferredPrompt = null;
         actualizarBotonInstalar();
         return;
       }
+      if(r && r.outcome === 'dismissed'){
+        window.__deferredPrompt = null;
+        actualizarBotonInstalar();
+        alert('Le diste cancelar. Vuelve a darle a Instalar app para que te salga de nuevo el aviso de instalar.');
+        return;
+      }
     }catch(e){}
-    deferredPrompt = null;
+    window.__deferredPrompt = null;
     actualizarBotonInstalar();
     return;
   }
@@ -402,7 +413,7 @@ window.instalarApp = async ()=>{
     alert('Para instalar: dale a Compartir (el cuadrito con flecha) y luego "Agregar a pantalla de inicio".');
     return;
   }
-  alert('Para instalar: abre el menu de tu navegador (los 3 puntitos arriba a la derecha) y dale a "Instalar aplicacion" o "Agregar a pantalla de inicio". Si no te sale, cierra y vuelve a abrir esta pagina.');
+  alert('Cierra esta pagina por completo y vuelve a abrirla, espera 2 segundos y dale de nuevo a Instalar app. Chrome a veces tarda en preparar el aviso la primera vez despues de desinstalar.');
 };
 actualizarBotonInstalar();
 if('serviceWorker' in navigator){
