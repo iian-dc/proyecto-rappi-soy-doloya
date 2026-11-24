@@ -4,14 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Panel Repartidor - DoloYa</title>
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#C00612">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="Logo-repartidores.png">
+<link rel="icon" type="image/png" href="Logo-repartidores.png">
 <script>
 // GUARDAR EL AVISO DE INSTALAR DESDE EL PRINCIPIO - PARA QUE SALGA AL DAR CLIC EN EL BOTON
 window.__deferredPrompt = null;
@@ -413,11 +412,11 @@ window.instalarApp = async ()=>{
     alert('Para instalar: dale a Compartir (el cuadrito con flecha) y luego "Agregar a pantalla de inicio".');
     return;
   }
-  alert('Cierra esta pagina por completo y vuelve a abrirla, espera 2 segundos y dale de nuevo a Instalar app. Chrome a veces tarda en preparar el aviso la primera vez despues de desinstalar.');
+  alert('Cierra esta pagina por completo y vuelve a abrirla, espera 3 segundos y dale de nuevo a Instalar app.');
 };
 actualizarBotonInstalar();
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
 }
 onSnapshot(collection(dbAdmin,"pedidos_admin"), (snap)=>{
   pedidosAll = snap.docs.map(d=>({id:d.id, ...d.data()}));
