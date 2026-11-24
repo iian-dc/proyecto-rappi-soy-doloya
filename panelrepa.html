@@ -12,7 +12,6 @@
 <link rel="apple-touch-icon" href="Logo-repartidores.png">
 <link rel="icon" type="image/png" href="Logo-repartidores.png">
 <script>
-// GUARDAR EL AVISO DE INSTALAR DESDE EL PRINCIPIO - PARA QUE SALGA AL DAR CLIC EN EL BOTON
 window.__deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e){
   e.preventDefault();
@@ -372,9 +371,22 @@ window.cerrar = ()=>{
   localStorage.removeItem("repartidor_sesion");
   window.location.href="index.html";
 }
-// INSTALAR APP - USA EL AVISO GUARDADO EN EL HEAD
+// INSTALAR APP - DETECTA WHATSAPP / FACEBOOK / INSTAGRAM QUE BLOQUEAN LA INSTALACION
 function estaInstalada(){
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function esNavegadorInterno(){
+  let ua = navigator.userAgent || '';
+  return /WhatsApp|FBAN|FBAV|Instagram|Line|Telegram|Twitter|TikTok/i.test(ua);
+}
+function abrirEnChrome(){
+  let url = window.location.href;
+  let sinProtocolo = url.replace(/^https?:\/\//, '');
+  // Intent de Android para abrir en Chrome
+  window.location.href = 'intent://' + sinProtocolo + '#Intent;scheme=https;package=com.android.chrome;end';
+  setTimeout(()=>{
+    alert('Si no se abrió Chrome solo: copia el link de arriba, abre la app de Chrome, pégalo ahí y dale a Instalar app.');
+  }, 1500);
 }
 function actualizarBotonInstalar(){
   let btn = document.getElementById('btnInstalar');
@@ -386,6 +398,13 @@ window.addEventListener('focus', ()=>{ actualizarBotonInstalar(); });
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) actualizarBotonInstalar(); });
 window.instalarApp = async ()=>{
   if(estaInstalada()) return;
+  // 1. Si está en WhatsApp / Facebook / Instagram, ahí NUNCA va a salir el aviso
+  if(esNavegadorInterno()){
+    let ok = confirm('Estás abriendo la página dentro de WhatsApp / Facebook, y ahí no se puede instalar.\n\n¿Quieres abrirla en Chrome para instalarla ahí mismo?');
+    if(ok) abrirEnChrome();
+    return;
+  }
+  // 2. Si Chrome ya dio el aviso, usarlo ahí mismo
   let p = window.__deferredPrompt;
   if(p){
     p.prompt();
@@ -399,7 +418,7 @@ window.instalarApp = async ()=>{
       if(r && r.outcome === 'dismissed'){
         window.__deferredPrompt = null;
         actualizarBotonInstalar();
-        alert('Le diste cancelar. Vuelve a darle a Instalar app para que te salga de nuevo el aviso de instalar.');
+        alert('Le diste cancelar. Vuelve a darle a Instalar app para que te salga de nuevo el aviso.');
         return;
       }
     }catch(e){}
@@ -407,12 +426,13 @@ window.instalarApp = async ()=>{
     actualizarBotonInstalar();
     return;
   }
+  // 3. Si todavía no hay aviso, es porque Chrome aún no lo preparó
   let esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   if(esIOS){
-    alert('Para instalar: dale a Compartir (el cuadrito con flecha) y luego "Agregar a pantalla de inicio".');
+    alert('En iPhone: dale a Compartir (el cuadrito con flecha) y luego "Agregar a pantalla de inicio".');
     return;
   }
-  alert('Cierra esta pagina por completo y vuelve a abrirla, espera 3 segundos y dale de nuevo a Instalar app.');
+  alert('Aún no está listo el aviso de Chrome. Cierra Chrome por completo, vuelve a abrir esta página DESDE CHROME (no desde WhatsApp), espera 3 segundos y dale de nuevo a Instalar app.');
 };
 actualizarBotonInstalar();
 if('serviceWorker' in navigator){
