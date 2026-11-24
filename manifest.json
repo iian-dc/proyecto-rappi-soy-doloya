@@ -10,29 +10,9 @@
   "theme_color": "#C00612",
   "orientation": "portrait",
   "icons": [
-    {
-      "src": "Logo-repartidores.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "Logo-repartidores.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "Logo-repartidores.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "Logo-repartidores.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    { "src": "Logo-repartidores.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "Logo-repartidores.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "Logo-repartidores.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "Logo-repartidores.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
