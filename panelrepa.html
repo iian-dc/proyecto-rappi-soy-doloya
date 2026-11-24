@@ -358,6 +358,7 @@ window.cerrar = ()=>{
   localStorage.removeItem("repartidor_sesion");
   window.location.href="index.html";
 }
+// INSTALAR APP - SI YA ESTA INSTALADA NO APARECE, SI SE DESINSTALA VUELVE A APARECER
 let deferredPrompt = null;
 function estaInstalada(){
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
@@ -366,10 +367,7 @@ function actualizarBotonInstalar(){
   let btn = document.getElementById('btnInstalar');
   if(!btn) return;
   if(estaInstalada()){ btn.style.display='none'; return; }
-  if(deferredPrompt){ btn.style.display='flex'; return; }
-  let esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  if(esIOS){ btn.style.display='flex'; return; }
-  btn.style.display='none';
+  btn.style.display='flex';
 }
 window.addEventListener('beforeinstallprompt', (e)=>{
   e.preventDefault();
@@ -380,11 +378,21 @@ window.addEventListener('appinstalled', ()=>{
   deferredPrompt = null;
   actualizarBotonInstalar();
 });
+window.addEventListener('focus', ()=>{ actualizarBotonInstalar(); });
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) actualizarBotonInstalar(); });
 window.instalarApp = async ()=>{
   if(estaInstalada()) return;
   if(deferredPrompt){
     deferredPrompt.prompt();
-    try{ await deferredPrompt.userChoice; }catch(e){}
+    try{
+      let r = await deferredPrompt.userChoice;
+      if(r && r.outcome === 'dismissed'){
+        // Si le dio cancelar, el boton se queda visible para intentarlo de nuevo
+        deferredPrompt = null;
+        actualizarBotonInstalar();
+        return;
+      }
+    }catch(e){}
     deferredPrompt = null;
     actualizarBotonInstalar();
     return;
@@ -394,7 +402,7 @@ window.instalarApp = async ()=>{
     alert('Para instalar: dale a Compartir (el cuadrito con flecha) y luego "Agregar a pantalla de inicio".');
     return;
   }
-  alert('Para instalar: abre el menú de tu navegador (los 3 puntitos) y dale a "Instalar aplicación" o "Agregar a pantalla de inicio".');
+  alert('Para instalar: abre el menu de tu navegador (los 3 puntitos arriba a la derecha) y dale a "Instalar aplicacion" o "Agregar a pantalla de inicio". Si no te sale, cierra y vuelve a abrir esta pagina.');
 };
 actualizarBotonInstalar();
 if('serviceWorker' in navigator){
